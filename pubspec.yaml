@@ -22,6 +22,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/images/logo.png
     - assets/images/profile.jpg
     - assets/images/smart_things.png
     - assets/images/mudhal_ai.png

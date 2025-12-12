@@ -1,13 +1,17 @@
+﻿// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/utils/responsive.dart';
 import '../../data/data_sources/project_data.dart';
-import '../../data/data_sources/experience_data.dart';
 import '../widgets/responsive_appbar.dart';
-import '../widgets/section_title.dart';
 import '../widgets/project_card.dart';
 import '../widgets/animated_fade_in.dart';
+import '../widgets/stagger_animation.dart';
+import '../widgets/enhanced_widgets.dart';
+import '../widgets/hero_section.dart';
+import '../widgets/about_section.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onToggleTheme;
@@ -25,14 +29,29 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
+  bool _showFAB = false;
 
   final GlobalKey _aboutKey = GlobalKey();
-  final GlobalKey _experienceKey = GlobalKey();
+  final GlobalKey _skillsKey = GlobalKey();
   final GlobalKey _projectsKey = GlobalKey();
   final GlobalKey _contactKey = GlobalKey();
 
   @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_updateFAB);
+  }
+
+  void _updateFAB() {
+    final show = _scrollController.offset > 300;
+    if (show != _showFAB) {
+      setState(() => _showFAB = show);
+    }
+  }
+
+  @override
   void dispose() {
+    _scrollController.removeListener(_updateFAB);
     _scrollController.dispose();
     super.dispose();
   }
@@ -51,7 +70,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDesktop = Responsive.isDesktop(context);
     final isMobile = Responsive.isMobile(context);
 
     return Scaffold(
@@ -59,258 +77,189 @@ class _HomeScreenState extends State<HomeScreen> {
         onToggleTheme: widget.onToggleTheme,
         themeMode: widget.themeMode,
         onAboutTap: () => _scrollToSection(_aboutKey),
-        onExperienceTap: () => _scrollToSection(_experienceKey),
+        onExperienceTap: () => _scrollToSection(_skillsKey),
         onProjectsTap: () => _scrollToSection(_projectsKey),
         onContactTap: () => _scrollToSection(_contactKey),
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1000),
-            child: isMobile
-                ? _buildMobileLayout(context)
-                : _buildDesktopLayout(context, isDesktop: isDesktop),
-          ),
+        child: Column(
+          children: [
+            // Hero Section
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 20 : 48,
+                vertical: 0,
+              ),
+              child: HeroSection(
+                name: 'Devendiran Thiyagarajan',
+                title: 'Flutter Developer',
+                subtitle:
+                    'I create high-quality Flutter apps with a focus on real-time capabilities, smooth UI interactions, and scalable architecture. My work spans smart home automation, enterprise systems, and AI-powered applications.',
+                onViewWork: () => _scrollToSection(_projectsKey),
+                onGetInTouch: () => _scrollToSection(_contactKey),
+              ),
+            ),
+
+            // Statistics Section
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 20 : 48,
+                vertical: 40,
+              ),
+              child: _buildStatsSection(context, isMobile),
+            ),
+
+            const Divider(height: 1),
+
+            // About Section
+            Container(
+              key: _aboutKey,
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 20 : 48,
+                vertical: 60,
+              ),
+              child: _buildAboutSection(context, isMobile),
+            ),
+
+            const Divider(height: 1),
+
+            // Skills Section
+            Container(
+              key: _skillsKey,
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 20 : 48,
+                vertical: 60,
+              ),
+              child: _buildSkillsSection(context, isMobile),
+            ),
+
+            const Divider(height: 1),
+
+            // Projects Section
+            Container(
+              key: _projectsKey,
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 20 : 48,
+                vertical: 60,
+              ),
+              child: _buildProjectsSection(context, isMobile),
+            ),
+
+            const Divider(height: 1),
+
+            // Contact Section
+            Container(
+              key: _contactKey,
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 20 : 48,
+                vertical: 60,
+              ),
+              child: _buildContactSection(context, isMobile),
+            ),
+
+            // Footer
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              child: _buildFooter(context),
+            ),
+          ],
         ),
       ),
+      floatingActionButton: _showFAB
+          ? AnimatedFAB(
+              onPressed: () {
+                _scrollController.animateTo(
+                  0,
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                );
+              },
+              icon: Icons.arrow_upward,
+              tooltip: 'Scroll to top',
+            )
+          : null,
     );
   }
 
-  // ----------------- LAYOUTS -----------------
-
-  Widget _buildDesktopLayout(BuildContext context, {required bool isDesktop}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildStatsSection(BuildContext context, bool isMobile) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        // First row: profile + intro
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: isDesktop ? 260 : 220,
-              child: _buildProfileColumn(context, isDesktop: isDesktop),
-            ),
-            const SizedBox(width: 28),
-            Expanded(child: _buildIntro(context)),
-          ],
-        ),
-        const SizedBox(height: 32),
-
-        // About
-        Container(
-          key: _aboutKey,
-          child: _buildAboutSection(context),
-        ),
-        const SizedBox(height: 32),
-
-        // Experience
-        Container(
-          key: _experienceKey,
-          child: _buildExperienceSection(context),
-        ),
-        const SizedBox(height: 32),
-
-        // Projects
-        Container(
-          key: _projectsKey,
-          child: _buildSelectedProjectsSection(context),
-        ),
-        const SizedBox(height: 32),
-
-        // Contact + Footer
-        Container(
-          key: _contactKey,
-          child: _buildContactSection(context),
-        ),
-        const SizedBox(height: 24),
-        const Divider(),
-        const SizedBox(height: 12),
-        _buildFooter(context),
+        _buildStatItem(context, '2+', 'Years Experience'),
+        _buildStatItem(context, '10+', 'Projects Completed'),
+        _buildStatItem(context, '5+', 'Happy Clients'),
       ],
     );
   }
 
-  Widget _buildMobileLayout(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildProfileColumn(context, isDesktop: false),
-        const SizedBox(height: 24),
-        _buildIntro(context),
-        const SizedBox(height: 32),
-        Container(
-          key: _aboutKey,
-          child: _buildAboutSection(context),
-        ),
-        const SizedBox(height: 32),
-        Container(
-          key: _experienceKey,
-          child: _buildExperienceSection(context),
-        ),
-        const SizedBox(height: 32),
-        Container(
-          key: _projectsKey,
-          child: _buildSelectedProjectsSection(context),
-        ),
-        const SizedBox(height: 32),
-        Container(
-          key: _contactKey,
-          child: _buildContactSection(context),
-        ),
-        const SizedBox(height: 24),
-        const Divider(),
-        const SizedBox(height: 12),
-        _buildFooter(context),
-      ],
-    );
-  }
-
-  // ----------------- SECTIONS -----------------
-
-  Widget _buildProfileColumn(BuildContext context, {required bool isDesktop}) {
-    final imageSize = isDesktop ? 220.0 : 140.0;
-
-    return Column(
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Image.asset(
-            'assets/images/profile.jpg',
-            width: imageSize,
-            height: imageSize,
-            fit: BoxFit.contain,
-          ),
-        ),
-        const SizedBox(height: 18),
-        Wrap(
-          spacing: 12,
-          runSpacing: 8,
-          children: [
-            OutlinedButton.icon(
-              icon: const Icon(Icons.link),
-              onPressed: () =>
-                  _openUrl('https://www.linkedin.com/in/devendiran-t'),
-              label: const Text('LinkedIn'),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildIntro(BuildContext context) {
-    return AnimatedFadeIn(
+  Widget _buildStatItem(BuildContext context, String value, String label) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            "Hello, I'm",
-            style: Theme.of(context).textTheme.bodyMedium,
+            value,
+            style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                  color: Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.w700,
+                ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
-            'Devendiran T',
-            style: Theme.of(context).textTheme.displayLarge,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Flutter Developer • Cross-platform App Developer',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'I build production-ready Flutter apps with clean architecture, '
-            'real-time features (MQTT/Firebase), and AI integrations.',
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-          const SizedBox(height: 18),
-          Wrap(
-            spacing: 12,
-            runSpacing: 8,
-            children: [
-              OutlinedButton(
-                onPressed: () => _openUrl('/Devendiran_resume_2025.pdf'),
-                child: const Text('Resume'),
-              ),
-            ],
+            label,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).hintColor,
+                ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAboutSection(BuildContext context) {
-    return const Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildAboutSection(BuildContext context, bool isMobile) {
+    return AboutSection(isMobile: isMobile);
+  }
+
+  Widget _buildSkillsSection(BuildContext context, bool isMobile) {
+    final skills = _getSkills();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SectionTitle(title: 'About'),
         Text(
-          'Flutter Developer with 2+ years of experience building high-performance apps. '
-          'Passionate about clean architecture, realtime systems, and AI features integrated '
-          'into practical products like smart home and workspace apps.',
-        ),
-      ],
-    );
-  }
-
-  Widget _buildExperienceSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SectionTitle(title: 'Experience'),
-        ...experienceList.map((e) {
-          return Card(
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    e.company,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${e.role} • ${e.duration}',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  ...e.highlights.map(
-                    (h) => Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('•  '),
-                        Expanded(child: Text(h)),
-                      ],
-                    ),
-                  ),
-                ],
+          'Skills & Technologies',
+          style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                color: Theme.of(context).brightness == Brightness.light
+                    ? const Color(0xFF1F2937)
+                    : null,
               ),
-            ),
-          );
-        }),
-      ],
-    );
-  }
-
-  Widget _buildSelectedProjectsSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SectionTitle(
-          title: 'My Projects',
-          subtitle: 'A few projects that demonstrate my work',
+          textAlign: TextAlign.center,
         ),
-        ListView.builder(
+        const SizedBox(height: 48),
+        GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: projectList.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount:
+                isMobile ? 1 : (Responsive.isTablet(context) ? 2 : 3),
+            mainAxisSpacing: 24,
+            crossAxisSpacing: 24,
+            childAspectRatio: 0.95,
+          ),
+          itemCount: skills.length,
           itemBuilder: (context, index) {
-            return ProjectCard(
-              project: projectList[index],
-              index: index,
+            final skill = skills[index];
+            return AnimatedFadeIn(
+              delay: Duration(milliseconds: 100 * index),
+              child: SkillCard(
+                icon: skill['icon'] as IconData,
+                title: skill['title'] as String,
+                description: skill['description'] as String,
+                tags: skill['tags'] as List<String>,
+              ),
             );
           },
         ),
@@ -318,68 +267,210 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildContactSection(BuildContext context) {
+  List<Map<String, dynamic>> _getSkills() {
+    return [
+      {
+        'icon': Icons.flutter_dash,
+        'title': 'Flutter',
+        'description':
+            'Building beautiful, fast, and natively compiled multi-platform applications',
+        'tags': ['Mobile', 'UI/UX', 'Cross-Platform']
+      },
+      {
+        'icon': Icons.code,
+        'title': 'Dart',
+        'description':
+            'Object-oriented programming with strong typing and async/await patterns',
+        'tags': ['OOP', 'Async', 'Type Safe']
+      },
+      {
+        'icon': Icons.cloud,
+        'title': 'Firebase',
+        'description':
+            'Cloud infrastructure for authentication, real-time databases, and hosting',
+        'tags': ['Backend', 'Database', 'Auth']
+      },
+      {
+        'icon': Icons.storage,
+        'title': 'State Management',
+        'description':
+            'Provider, Riverpod, BLoC patterns for scalable app architecture',
+        'tags': ['Architecture', 'Performance', 'Scalability']
+      },
+      {
+        'icon': Icons.api,
+        'title': 'REST APIs',
+        'description':
+            'HTTP integration, JSON parsing, and API design patterns',
+        'tags': ['Backend', 'Integration', 'Networking']
+      },
+      {
+        'icon': Icons.build,
+        'title': 'Git & CI/CD',
+        'description': 'Version control and automated deployment pipelines',
+        'tags': ['DevOps', 'Automation', 'Collaboration']
+      },
+    ];
+  }
+
+  Widget _buildProjectsSection(BuildContext context, bool isMobile) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const SectionTitle(title: 'Contact'),
-        const SizedBox(height: 4),
-        GestureDetector(
-          onTap: () => _openUrl('mailto:devendiran03@gmail.com'),
-          child: Text(
-            'Email: devendiran03@gmail.com',
-            style: Theme.of(context)
-                .textTheme
-                .bodyLarge
-                ?.copyWith(decoration: TextDecoration.underline),
-          ),
+        Text(
+          'Featured Projects',
+          style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                color: Theme.of(context).brightness == Brightness.light
+                    ? const Color(0xFF1F2937)
+                    : null,
+              ),
+          textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 8),
-        GestureDetector(
-          onTap: () => _openUrl('https://www.linkedin.com/in/devendiran-t'),
-          child: Text(
-            'LinkedIn: linkedin.com/in/devendiran-t',
-            style: Theme.of(context)
-                .textTheme
-                .bodyLarge
-                ?.copyWith(decoration: TextDecoration.underline),
-          ),
-        ),
-        const SizedBox(height: 8),
-        GestureDetector(
-          onTap: () => _openUrl('tel:+919952583296'),
-          child: Text(
-            'Mobile: +91-99525-83296',
-            style: Theme.of(context)
-                .textTheme
-                .bodyLarge
-                ?.copyWith(decoration: TextDecoration.underline),
-          ),
+        const SizedBox(height: 48),
+        StaggeredAnimation(
+          children: projectList.asMap().entries.map((entry) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 32),
+              child: ProjectCard(
+                project: entry.value,
+                index: entry.key,
+              ),
+            );
+          }).toList(),
         ),
       ],
     );
   }
 
-  Widget _buildFooter(BuildContext context) {
-    return Center(
-      child: Text(
-        'Built with Flutter • © 2025 Devendiran T',
-        style: Theme.of(context).textTheme.bodyMedium,
+  Widget _buildContactSection(BuildContext context, bool isMobile) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          'Get In Touch',
+          style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                color: Theme.of(context).brightness == Brightness.light
+                    ? const Color(0xFF1F2937)
+                    : null,
+              ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 24),
+        Text(
+          'I\'m currently available for freelance work and exciting opportunities. Let\'s build something amazing together!',
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Theme.of(context).hintColor,
+                height: 1.8,
+              ),
+        ),
+        const SizedBox(height: 40),
+        StaggeredAnimation(
+          children: [
+            _buildContactCard(
+              context,
+              icon: Icons.email_outlined,
+              label: 'Email',
+              value: 'devendiran03@gmail.com',
+              url: 'mailto:devendiran03@gmail.com',
+            ),
+            _buildContactCard(
+              context,
+              icon: Icons.language,
+              label: 'GitHub',
+              value: 'github.com/devendiran',
+              url: 'https://github.com',
+            ),
+            _buildContactCard(
+              context,
+              icon: Icons.work_outline,
+              label: 'LinkedIn',
+              value: 'linkedin.com/in/devendiran-t',
+              url: 'https://linkedin.com/in/devendiran-t',
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildContactCard(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String value,
+    required String url,
+  }) {
+    return ScaleOnHover(
+      onTap: () => _openUrl(url),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: Theme.of(context).dividerColor,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                icon,
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).hintColor,
+                        ),
+                  ),
+                  Text(
+                    value,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_outward,
+              color: Theme.of(context).primaryColor.withOpacity(0.5),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  // ----------------- UTIL -----------------
+  Widget _buildFooter(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          'Built with Flutter Spirit',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Â© 2024 Devendiran Thiyagarajan. All rights reserved.',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).hintColor,
+              ),
+        ),
+      ],
+    );
+  }
 
   void _openUrl(String url) async {
-    Uri uri;
-    if (url.startsWith('/')) {
-      final origin = Uri.base.origin;
-      uri = Uri.parse(origin + url);
-    } else {
-      uri = Uri.parse(url);
-    }
-
+    final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(
         uri,

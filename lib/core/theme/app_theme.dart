@@ -4,54 +4,98 @@ import 'app_colors.dart';
 
 class AppTheme {
   static final baseTextTheme = TextTheme(
-    displayLarge: GoogleFonts.inter(fontSize: 36, fontWeight: FontWeight.bold),
-    headlineMedium:
-        GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w700),
-    titleLarge: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w600),
-    bodyLarge: GoogleFonts.inter(fontSize: 16),
-    bodyMedium: GoogleFonts.inter(fontSize: 14, color: AppColors.muted),
+    displayLarge: GoogleFonts.montserrat(
+      fontSize: 48,
+      fontWeight: FontWeight.w700,
+      letterSpacing: -1.5,
+    ),
+    displayMedium: GoogleFonts.montserrat(
+      fontSize: 36,
+      fontWeight: FontWeight.w700,
+    ),
+    headlineLarge: GoogleFonts.montserrat(
+      fontSize: 28,
+      fontWeight: FontWeight.w600,
+    ),
+    headlineMedium: GoogleFonts.montserrat(
+      fontSize: 24,
+      fontWeight: FontWeight.w600,
+    ),
+    titleLarge: GoogleFonts.montserrat(
+      fontSize: 18,
+      fontWeight: FontWeight.w600,
+    ),
+    bodyLarge: GoogleFonts.montserrat(
+      fontSize: 16,
+      fontWeight: FontWeight.w400,
+      height: 1.6,
+    ),
+    bodyMedium: GoogleFonts.montserrat(
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+    ),
+    labelLarge: GoogleFonts.montserrat(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+    ),
   );
 
   static final lightTheme = ThemeData(
     brightness: Brightness.light,
+    useMaterial3: true,
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: Colors.white,
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.white,
       elevation: 0,
-      iconTheme: IconThemeData(color: Colors.black87),
+      scrolledUnderElevation: 0,
+      iconTheme: IconThemeData(color: AppColors.secondary),
       titleTextStyle: TextStyle(
-        color: Colors.black87,
+        color: AppColors.secondary,
         fontSize: 18,
         fontWeight: FontWeight.w700,
       ),
     ),
-    textTheme: baseTextTheme.apply(bodyColor: Colors.black87),
+    textTheme: baseTextTheme.apply(bodyColor: AppColors.secondary),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.primary,
+        side: const BorderSide(color: AppColors.primary, width: 1.5),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
       ),
     ),
     cardTheme: CardThemeData(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 10),
+      elevation: 0,
+      color: AppColors.lightBg,
+      margin: const EdgeInsets.symmetric(vertical: 12),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
       ),
     ),
-    dividerColor: Colors.grey.shade200,
+    dividerColor: const Color(0xFFE5E7EB),
+    hintColor: AppColors.lightText,
   );
 
   static final darkTheme = ThemeData(
     brightness: Brightness.dark,
+    useMaterial3: true,
     primaryColor: AppColors.primary,
-    scaffoldBackgroundColor: const Color(0xFF0B1020),
+    scaffoldBackgroundColor: AppColors.darkBg,
     appBarTheme: const AppBarTheme(
-      backgroundColor: Color(0xFF0B1020),
+      backgroundColor: AppColors.darkBg,
       elevation: 0,
+      scrolledUnderElevation: 0,
       iconTheme: IconThemeData(color: Colors.white),
       titleTextStyle: TextStyle(
         color: Colors.white,
@@ -64,17 +108,29 @@ class AppTheme {
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.primary,
+        side: const BorderSide(color: AppColors.primary, width: 1.5),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
       ),
     ),
     cardTheme: CardThemeData(
-      elevation: 2,
-      color: const Color(0xFF0F1724),
-      margin: const EdgeInsets.symmetric(vertical: 10),
+      elevation: 0,
+      color: AppColors.darkCardBg,
+      margin: const EdgeInsets.symmetric(vertical: 12),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: Color(0xFF334155), width: 1),
       ),
     ),
-    dividerColor: Colors.grey.shade800,
+    dividerColor: const Color(0xFF334155),
+    hintColor: AppColors.lightText,
   );
 }
