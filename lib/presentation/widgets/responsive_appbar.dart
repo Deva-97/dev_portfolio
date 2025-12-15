@@ -55,8 +55,8 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
             children: [
               SvgPicture.asset(
                 'assets/images/flutter logo.svg',
-                width: 28,
-                height: 28,
+                width: Responsive.isMobile(context) ? 20 : 28,
+                height: Responsive.isMobile(context) ? 20 : 28,
               ),
               const SizedBox(width: 10),
               Text(
@@ -64,6 +64,7 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       color: isDark ? AppColors.flutterLightBlue : AppColors.flutterDarkBlue,
                       fontWeight: FontWeight.w700,
+                      fontSize: Responsive.isMobile(context) ? 18 : null,
                     ),
               ),
             ],

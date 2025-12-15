@@ -146,6 +146,7 @@ class _ProjectCardState extends State<ProjectCard>
                               color: _isHovered
                                   ? (isDark ? AppColors.flutterLightBlue : AppColors.flutterDarkBlue)
                                   : null,
+                              fontSize: isMobile ? 16 : null,
                             ),
                       ),
                       const SizedBox(height: 10),
@@ -154,6 +155,7 @@ class _ProjectCardState extends State<ProjectCard>
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                               color: Theme.of(context).hintColor,
                               height: 1.6,
+                              fontSize: isMobile ? 13 : null,
                             ),
                       ),
                       const SizedBox(height: 14),
@@ -188,27 +190,53 @@ class _ProjectCardState extends State<ProjectCard>
                             .toList(),
                       ),
                       const SizedBox(height: 20),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 8,
-                        children: [
-                          if (widget.project.playStore != null &&
-                              widget.project.playStore!.isNotEmpty)
-                            _buildActionButton(
-                              context,
-                              icon: Icons.shop,
-                              label: 'Play Store',
-                              onTap: () => _openUrl(widget.project.playStore!),
-                            ),
-                          if (widget.project.appStore != null &&
-                              widget.project.appStore!.isNotEmpty)
-                            _buildActionButton(
-                              context,
-                              icon: Icons.apple,
-                              label: 'App Store',
-                              onTap: () => _openUrl(widget.project.appStore!),
-                            ),
-                        ],
+                      Builder(
+                        builder: (context) {
+                          final isMobile = MediaQuery.of(context).size.width < 600;
+                          return Wrap(
+                            spacing: 12,
+                            runSpacing: 8,
+                            children: [
+                              if (isMobile)
+                                ...[
+                                  if (widget.project.playStore != null && widget.project.playStore!.isNotEmpty)
+                                    _buildActionButton(
+                                      context,
+                                      icon: Icons.shop,
+                                      label: 'Play Store',
+                                      onTap: () => _openUrl(widget.project.playStore!),
+                                      buttonSize: 'small',
+                                    ),
+                                  if (widget.project.appStore != null && widget.project.appStore!.isNotEmpty)
+                                    _buildActionButton(
+                                      context,
+                                      icon: Icons.apple,
+                                      label: 'App Store',
+                                      onTap: () => _openUrl(widget.project.appStore!),
+                                      buttonSize: 'small',
+                                    ),
+                                ]
+                              else ...[
+                                if (widget.project.playStore != null && widget.project.playStore!.isNotEmpty)
+                                  _buildActionButton(
+                                    context,
+                                    icon: Icons.shop,
+                                    label: 'Play Store',
+                                    onTap: () => _openUrl(widget.project.playStore!),
+                                    buttonSize: 'normal',
+                                  ),
+                                if (widget.project.appStore != null && widget.project.appStore!.isNotEmpty)
+                                  _buildActionButton(
+                                    context,
+                                    icon: Icons.apple,
+                                    label: 'App Store',
+                                    onTap: () => _openUrl(widget.project.appStore!),
+                                    buttonSize: 'normal',
+                                  ),
+                              ]
+                            ],
+                          );
+                        },
                       ),
                     ],
                   )
@@ -336,11 +364,13 @@ class _ProjectCardState extends State<ProjectCard>
     required IconData icon,
     required String label,
     required VoidCallback onTap,
+    String buttonSize = 'normal',
   }) {
     return _HoverActionButton(
       icon: icon,
       label: label,
       onTap: onTap,
+      buttonSize: buttonSize,
     );
   }
 
@@ -360,11 +390,13 @@ class _HoverActionButton extends StatefulWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final String buttonSize; // 'normal' or 'small'
 
   const _HoverActionButton({
     required this.icon,
     required this.label,
     required this.onTap,
+    this.buttonSize = 'normal',
   });
 
   @override
@@ -396,6 +428,7 @@ class _HoverActionButtonState extends State<_HoverActionButton>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final buttonColor = isDark ? AppColors.flutterLightBlue : AppColors.flutterDarkBlue;
     
+    final isSmall = widget.buttonSize == 'small';
     return MouseRegion(
       onEnter: (_) {
         setState(() => _isHovered = true);
@@ -413,8 +446,11 @@ class _HoverActionButtonState extends State<_HoverActionButton>
             scale: scale,
             child: OutlinedButton.icon(
               onPressed: widget.onTap,
-              icon: Icon(widget.icon, size: 18),
-              label: Text(widget.label),
+              icon: Icon(widget.icon, size: isSmall ? 14 : 16),
+              label: Text(
+                widget.label,
+                style: TextStyle(fontSize: isSmall ? 13 : 15),
+              ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: _isHovered ? Colors.white : buttonColor,
                 backgroundColor: _isHovered ? buttonColor : Colors.transparent,
@@ -422,7 +458,7 @@ class _HoverActionButtonState extends State<_HoverActionButton>
                   color: buttonColor,
                   width: 2,
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: EdgeInsets.symmetric(horizontal: isSmall ? 10 : 16, vertical: isSmall ? 7 : 10),
               ),
             ),
           );

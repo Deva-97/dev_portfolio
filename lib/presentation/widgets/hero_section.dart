@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:math' as math;
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/responsive.dart';
 import 'animated_fade_in.dart';
 
 /// Hero section for modern portfolio - matching reference design
@@ -184,7 +185,8 @@ class _HeroSectionState extends State<HeroSection>
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             color: Theme.of(context).hintColor,
                             height: 1.8,
-                            fontSize: isMobile ? 16 : 18,
+                            // Match About Me description font size on mobile
+                            fontSize: isMobile ? 17 : 18,
                           ),
                       textAlign: showSideLogo ? TextAlign.start : TextAlign.center,
                     ),
@@ -290,6 +292,7 @@ class _HoverElevatedButtonState extends State<_HoverElevatedButton>
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
     return MouseRegion(
       onEnter: (_) => _controller.forward(),
       onExit: (_) => _controller.reverse(),
@@ -299,6 +302,7 @@ class _HoverElevatedButtonState extends State<_HoverElevatedButton>
           return Transform.scale(
             scale: _scaleAnimation.value,
             child: Container(
+              width: isMobile ? double.infinity : null,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: [
@@ -361,6 +365,7 @@ class _HoverOutlinedButtonState extends State<_HoverOutlinedButton>
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
     return MouseRegion(
       onEnter: (_) => _controller.forward(),
       onExit: (_) => _controller.reverse(),
@@ -369,9 +374,12 @@ class _HoverOutlinedButtonState extends State<_HoverOutlinedButton>
         builder: (context, child) {
           return Transform.scale(
             scale: _scaleAnimation.value,
-            child: OutlinedButton(
-              onPressed: widget.onPressed,
-              child: Text(widget.label),
+            child: SizedBox(
+              width: isMobile ? double.infinity : null,
+              child: OutlinedButton(
+                onPressed: widget.onPressed,
+                child: Text(widget.label),
+              ),
             ),
           );
         },
@@ -441,6 +449,13 @@ class _SkillCardState extends State<SkillCard>
           builder: (context, child) {
             // translateY effect like reference: transform: translateY(0px) -> translateY(-8px)
             final translateY = -8.0 * _hoverController.value;
+            final screenWidth = MediaQuery.of(context).size.width;
+            final isMobileOuter = screenWidth <= 600;
+            // Reduce internal padding for mobile
+            final contentPadding = EdgeInsets.symmetric(
+              horizontal: isMobileOuter ? 8.0 : 16.0,
+              vertical: isMobileOuter ? 8.0 : 16.0,
+            );
 
             return Transform.translate(
               offset: Offset(0, translateY),
@@ -463,7 +478,7 @@ class _SkillCardState extends State<SkillCard>
                 ),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.all(16.0),
+                padding: contentPadding,
                 decoration: BoxDecoration(
                   color: isDark ? AppColors.darkCardBg : Colors.white,
                   borderRadius: BorderRadius.circular(16),
@@ -482,18 +497,20 @@ class _SkillCardState extends State<SkillCard>
                     final isTablet = screenWidth > 600 && screenWidth <= 900;
                     final isMobile = screenWidth <= 600;
                     
-                    // Icon size - larger for mobile/tablet
-                    final iconSize = isDesktop ? 56.0 : (isTablet ? 52.0 : 48.0);
-                    // Title font size - larger for mobile/tablet
-                    final titleFontSize = isDesktop ? 17.0 : (isTablet ? 16.0 : 15.0);
-                    // Description font size - larger for mobile/tablet
-                    final descFontSize = isDesktop ? 14.0 : (isTablet ? 13.0 : 12.0);
-                    
+                    // Icon size - slightly reduced on mobile so two-column layout fits
+                    final iconSize = isDesktop ? 56.0 : (isTablet ? 52.0 : 44.0);
+                    // Title font size - slightly reduced on mobile so text fits two columns
+                    final titleFontSize = isDesktop ? 17.0 : (isTablet ? 16.0 : 14.0);
+                    // Description font size - slightly reduced on mobile
+                    final descFontSize = isDesktop ? 14.0 : (isTablet ? 13.0 : 11.0);
+
                     // Responsive spacing - tighter for mobile
-                    final topSpacing = isMobile ? 8.0 : 16.0;
-                    final iconTitleSpacing = isMobile ? 8.0 : 12.0;
-                    final titleDescSpacing = isMobile ? 6.0 : 8.0;
-                    final bottomSpacing = isMobile ? 2.0 : 12.0;
+                    // Add more vertical gap below and between cards for mobile
+                    final topSpacing = isMobile ? 10.0 : 16.0;
+                    final iconTitleSpacing = isMobile ? 10.0 : 12.0;
+                    final titleDescSpacing = isMobile ? 8.0 : 8.0;
+                    final bottomSpacing = isMobile ? 14.0 : 12.0;
+
                     
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -707,6 +724,8 @@ class _FeaturedProjectCardState extends State<FeaturedProjectCard>
                                 ?.copyWith(
                                   fontWeight: FontWeight.w700,
                                   color: _isHovered ? AppColors.primary : null,
+                                  // Larger title font size on mobile
+                                  fontSize: Responsive.isMobile(context) ? 20 : null,
                                 ),
                           ),
                           const SizedBox(height: 12),
@@ -716,6 +735,8 @@ class _FeaturedProjectCardState extends State<FeaturedProjectCard>
                                 Theme.of(context).textTheme.bodyLarge?.copyWith(
                                       color: Theme.of(context).hintColor,
                                       height: 1.6,
+                                      // Larger description font size on mobile
+                                      fontSize: Responsive.isMobile(context) ? 16 : null,
                                     ),
                           ),
                           const SizedBox(height: 20),

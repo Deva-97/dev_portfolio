@@ -61,10 +61,12 @@ class _HomeScreenState extends State<HomeScreen> {
     final showFab = _scrollController.offset > 300;
     // Show name after hero name is scrolled out
     // Desktop (>=900): ~150px (padding + greeting + name on side layout)
-    // Mobile/Tablet (<900): ~420px (padding + logo ~280 + spacing 40 + greeting + name centered)
+    // Tablet (600-899): show immediately
+    // Mobile (<600): ~420px (padding + logo ~280 + spacing 40 + greeting + name centered)
     final screenWidth = MediaQuery.of(context).size.width;
     final isDesktopLayout = screenWidth >= 900;
-    final scrollThreshold = isDesktopLayout ? 150.0 : 420.0;
+    final isMobileLayout = screenWidth < 600;
+    final scrollThreshold = isDesktopLayout ? 150.0 : (isMobileLayout ? 420.0 : 0.0);
     final showName = _scrollController.offset > scrollThreshold;
     
     if (showFab != _showFAB || showName != _showAppBarName) {
@@ -132,25 +134,33 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                // About Section
-                Container(
-                  key: _aboutKey,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isMobile ? 20 : 48,
-                    vertical: 60,
+                // About and Skills stacked full width on mobile
+                if (isMobile) ...[
+                  Container(
+                    key: _aboutKey,
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+                    child: _buildAboutSection(context, isMobile),
                   ),
-                  child: _buildAboutSection(context, isMobile),
-                ),
-
-                // Skills Section
-                Container(
-                  key: _skillsKey,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isMobile ? 28 : 48,
-                    vertical: 60,
+                  const SizedBox(height: 24),
+                  Container(
+                    key: _skillsKey,
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+                    child: _buildSkillsSection(context, isMobile),
                   ),
-                  child: _buildSkillsSection(context, isMobile),
-                ),
+                ] else ...[
+                  Container(
+                    key: _aboutKey,
+                    padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 60),
+                    child: _buildAboutSection(context, isMobile),
+                  ),
+                  Container(
+                    key: _skillsKey,
+                    padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 60),
+                    child: _buildSkillsSection(context, isMobile),
+                  ),
+                ],
 
                 // Projects Section
                 Container(
@@ -214,40 +224,44 @@ class _HomeScreenState extends State<HomeScreen> {
         LayoutBuilder(
           builder: (context, constraints) {
             final maxWidth = constraints.maxWidth;
-            // 3 columns on desktop (>900), 2 on tablet and mobile
-            final crossAxisCount = maxWidth > 900
-                ? 3
-                : 2;
-            // Aspect ratio - higher = shorter cards
+            final isMobile = maxWidth <= 600;
+            // 3 columns on desktop (>900), 2 on tablet and mobile (<=900) to show two cards in a row on small screens
+            final crossAxisCount = maxWidth > 900 ? 3 : 2;
+            // Aspect ratio - desktop: short cards, tablet: medium, mobile: much taller cards to fit all content
             final aspectRatio = maxWidth > 900
                 ? 1.4
                 : maxWidth > 600
-                    ? 1.9
-                    : 1.05;
-            // Spacing - desktop 24, tablet 20, mobile 18
-            final spacing = maxWidth > 900 ? 24.0 : (maxWidth > 600 ? 20.0 : 18.0);
-            return GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: crossAxisCount,
-                mainAxisSpacing: spacing,
-                crossAxisSpacing: spacing,
-                childAspectRatio: aspectRatio,
-              ),
-              itemCount: skills.length,
-              itemBuilder: (context, index) {
-                final skill = skills[index];
-                return AnimatedFadeIn(
-                  delay: Duration(milliseconds: 80 * index),
-                  child: SkillCard(
-                    icon: skill['icon'] as IconData,
-                    title: skill['title'] as String,
-                    description: skill['description'] as String,
-                    assetPath: skill['asset'] as String?,
+                  ? 1.9
+                  : 0.80; // Slightly decrease aspect ratio for mobile to increase card height
+            // Spacing - desktop 24, tablet 20, mobile 24 (more vertical gap for mobile)
+            final spacing = maxWidth > 900 ? 24.0 : (maxWidth > 600 ? 20.0 : 24.0);
+            return Column(
+              children: [
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    mainAxisSpacing: spacing,
+                    crossAxisSpacing: spacing,
+                    childAspectRatio: aspectRatio,
                   ),
-                );
-              },
+                  itemCount: skills.length,
+                  itemBuilder: (context, index) {
+                    final skill = skills[index];
+                    return AnimatedFadeIn(
+                      delay: Duration(milliseconds: 80 * index),
+                      child: SkillCard(
+                        icon: skill['icon'] as IconData,
+                        title: skill['title'] as String,
+                        description: skill['description'] as String,
+                        assetPath: skill['asset'] as String?,
+                      ),
+                    );
+                  },
+                ),
+                if (isMobile) const SizedBox(height: 24),
+              ],
             );
           },
         ),
@@ -380,6 +394,7 @@ class _HomeScreenState extends State<HomeScreen> {
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: Theme.of(context).hintColor,
                 height: 1.8,
+                fontSize: Responsive.isMobile(context) ? 17 : null,
               ),
           textAlign: TextAlign.center,
         ),
@@ -446,20 +461,25 @@ class _HomeScreenState extends State<HomeScreen> {
             'Availability: Full-time Flutter Developer',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).hintColor,
-                  fontSize: 18,
+                  // Reduce font size on mobile so each line stays inline
+                  fontSize: Responsive.isMobile(context) ? 13 : 18,
                   fontWeight: FontWeight.bold,
                 ),
             textAlign: TextAlign.center,
+            softWrap: false,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 8),
           Text(
             'Locations: Chennai | Bangalore | Hyderabad',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).hintColor,
-                  fontSize: 18,
+                  fontSize: Responsive.isMobile(context) ? 13 : 18,
                   fontWeight: FontWeight.bold,
                 ),
             textAlign: TextAlign.center,
+            softWrap: false,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 8),
           Text(
@@ -612,6 +632,7 @@ class _ContactCardHoverState extends State<_ContactCardHover>
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     color: Theme.of(context).hintColor,
                                     fontWeight: FontWeight.w500,
+                                    fontSize: Responsive.isMobile(context) ? 14 : null,
                                   ),
                             ),
                             const SizedBox(height: 4),
@@ -623,6 +644,7 @@ class _ContactCardHoverState extends State<_ContactCardHover>
                                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                       fontWeight: FontWeight.w600,
                                       color: _isHovered ? primaryColor : null,
+                                      fontSize: Responsive.isMobile(context) ? 14 : null,
                                     ),
                               ),
                             ),
