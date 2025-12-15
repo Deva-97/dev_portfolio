@@ -12,6 +12,7 @@ dependencies:
   google_fonts: ^6.0.0
   url_launcher: ^6.1.7
   animations: ^2.0.6
+  flutter_svg: ^2.0.6
 
 dev_dependencies:
   flutter_test:
@@ -22,9 +23,22 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/images/flutter logo.svg
+    - assets/images/linkedin.svg
+    - assets/images/dart.svg
+    - assets/images/firebase.svg
+    - assets/images/github_logo.svg
+    - assets/images/api.svg
+    - assets/images/resume.svg
+    - assets/images/dev_portfolio.jpg
     - assets/images/logo.png
     - assets/images/profile.jpg
     - assets/images/smart_things.png
     - assets/images/mudhal_ai.png
     - assets/images/tab_app.png
     - assets/images/workspace.png
+    - assets/images/architecture.png
+    - assets/images/state_management.png
+    - assets/images/mqtt.svg
+    - assets/images/devices.png
+    - assets/images/app_deployment.png

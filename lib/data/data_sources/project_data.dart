@@ -4,8 +4,8 @@ final List<Project> projectList = [
   Project(
     title: "Onwords Smart Things",
     description:
-        "Smart home automation app with MQTT-based real-time controls, scheduling, and device groups.",
-    tech: ["Flutter", "MQTT", "Firebase"],
+        "A smart home automation application focused on real-time device control and scheduling. Built MQTT-based communication and integrated Firebase services to ensure reliable, low-latency performance across platforms.",
+    tech: ["Flutter", "Dart", "MQTT", "Firebase", "Firestore", "Crashlytics", "Authentication", "Remote config", "Messaging", "Kotlin", "Xcode", "Home Screen Widgets", "Clean Architecture", "Android", "iOS"],
     playStore:
         "https://play.google.com/store/apps/details?id=com.onwords.smart_things&hl=en_IN",
     image: "assets/images/smart_things.png",
@@ -13,8 +13,8 @@ final List<Project> projectList = [
   Project(
     title: "Onwords Workspace",
     description:
-        "Internal office management app streamlining Attendance, Leads, Finanace reporting & Refreshment details.",
-    tech: ["Flutter", "Notification", "Firebase"],
+        "An enterprise mobile application designed to manage attendance, tasks, finance reporting, and lead workflows. Developed core modules and ensured smooth cross-platform performance for daily internal operations.",
+    tech: ["Flutter", "Dart", "Firebase", "Storage", "App distribution", "Realtime Database", "Notification", "REST APIs", "MVVM", "Android", "Test Flight"],
     playStore:
         "https://play.google.com/store/apps/details?id=com.office.onwords&hl=en_IN",
     image: "assets/images/workspace.png",
@@ -22,16 +22,16 @@ final List<Project> projectList = [
   Project(
     title: "Mudhal AI",
     description:
-        "AI assistant app integrating ChatGPT, voice-to-text, image processing and audio narration.",
-    tech: ["Flutter", "OpenAI", "Firebase"],
+        "An AI-powered mobile assistant integrating ChatGPT, voice-to-text, and image processing features. Designed and developed the Flutter application end-to-end with Firebase integration and App Store deployment.",
+    tech: ["Flutter", "Dart", "AI Integration", "ChatGPT", "Firestore", "Authentication", "Storage", "Voice-to-Text", "iOS"],
     appStore: "https://apps.apple.com/au/app/mudhal-ai/id6462861310",
     image: "assets/images/mudhal_ai.png",
   ),
   Project(
     title: "Onwords ST (Tab app)",
     description:
-        "Smart home automation app with MQTT-based real-time controls, scheduling, and device groups.",
-    tech: ["Flutter", "MQTT", "Weather Api", "Firebase"],
+        "A tablet-first smart automation application built for large-screen enterprise environments. Implemented adaptive Flutter layouts and real-time MQTT controls to support complex automation workflows.",
+    tech: ["Flutter", "Dart", "Tablet App", "Firebase", "MQTT", "Storage", "Crashlytics", "Android", "iOS"],
     playStore:
         "https://play.google.com/store/apps/details?id=com.onwords.ost_tab_app&hl=en_IN",
     image: "assets/images/tab_app.png",

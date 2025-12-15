@@ -12,7 +12,7 @@ class ExperienceScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const SectionTitle(title: "Work Experience"),
+          const SectionTitle(title: "Work Experience", useGradient: true),
           Expanded(
             child: ListView.builder(
               itemCount: experienceList.length,

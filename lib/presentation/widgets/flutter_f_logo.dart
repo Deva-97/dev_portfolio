@@ -2,77 +2,83 @@
 
 import 'package:flutter/material.dart';
 
-/// Custom Flutter F Logo
-class FlutterFLogo extends StatelessWidget {
+/// Animated developer mark that now uses the asset logo for the splash/hero animation.
+class FlutterFLogo extends StatefulWidget {
   final double size;
-  final Color? color;
+  final bool loop;
 
   const FlutterFLogo({
     super.key,
-    this.size = 100,
-    this.color,
+    this.size = 120,
+    this.loop = true,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final logoColor = color ?? Theme.of(context).primaryColor;
-
-    return CustomPaint(
-      size: Size(size, size),
-      painter: FlutterFLogoPainter(color: logoColor),
-    );
-  }
+  State<FlutterFLogo> createState() => _FlutterFLogoState();
 }
 
-class FlutterFLogoPainter extends CustomPainter {
-  final Color color;
-
-  FlutterFLogoPainter({required this.color});
+class _FlutterFLogoState extends State<FlutterFLogo>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _rotation;
+  late final Animation<double> _scale;
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 6000),
+      vsync: this,
+    );
 
-    final width = size.width;
-    final height = size.height;
+    _rotation = TweenSequence<double>(
+      [
+        TweenSequenceItem(tween: Tween(begin: -0.04, end: 0.04), weight: 1),
+        TweenSequenceItem(tween: Tween(begin: 0.04, end: -0.02), weight: 1),
+        TweenSequenceItem(tween: Tween(begin: -0.02, end: 0), weight: 1),
+      ],
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
-    // Vertical stem (left side of F)
-    final stem = Path()
-      ..moveTo(width * 0.15, height * 0.0)
-      ..lineTo(width * 0.35, height * 0.0)
-      ..lineTo(width * 0.32, height * 1.0)
-      ..lineTo(width * 0.12, height * 1.0)
-      ..close();
+    _scale = Tween<double>(begin: 0.98, end: 1.05).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
 
-    paint.color = color;
-    canvas.drawPath(stem, paint);
-
-    // Top horizontal bar of F
-    final topBar = Path()
-      ..moveTo(width * 0.35, height * 0.0)
-      ..lineTo(width * 0.95, height * 0.0)
-      ..lineTo(width * 0.92, height * 0.15)
-      ..lineTo(width * 0.32, height * 0.15)
-      ..close();
-
-    paint.color = color.withOpacity(0.85);
-    canvas.drawPath(topBar, paint);
-
-    // Middle horizontal bar of F
-    final midBar = Path()
-      ..moveTo(width * 0.35, height * 0.4)
-      ..lineTo(width * 0.8, height * 0.4)
-      ..lineTo(width * 0.77, height * 0.55)
-      ..lineTo(width * 0.32, height * 0.55)
-      ..close();
-
-    paint.color = color.withOpacity(0.7);
-    canvas.drawPath(midBar, paint);
+    if (widget.loop) {
+      _controller.repeat(reverse: true);
+    } else {
+      _controller.forward();
+    }
   }
 
   @override
-  bool shouldRepaint(FlutterFLogoPainter oldDelegate) =>
-      oldDelegate.color != color;
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: widget.size,
+      height: widget.size,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return Transform.rotate(
+            angle: _rotation.value,
+            child: Transform.scale(
+              scale: _scale.value,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(widget.size * 0.2),
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
 }

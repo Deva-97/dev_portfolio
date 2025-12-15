@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../core/theme/app_colors.dart';
 import '../../data/models/project.dart';
 import 'animated_fade_in.dart';
-import 'stagger_animation.dart';
 
 class ProjectCard extends StatefulWidget {
   final Project project;
@@ -22,168 +22,309 @@ class ProjectCard extends StatefulWidget {
 
 class _ProjectCardState extends State<ProjectCard>
     with SingleTickerProviderStateMixin {
-  late AnimationController _elevationController;
+  late AnimationController _hoverController;
   bool _isHovered = false;
 
   @override
   void initState() {
     super.initState();
-    _elevationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+    _hoverController = AnimationController(
+      duration: const Duration(milliseconds: 150),
       vsync: this,
     );
   }
 
   @override
   void dispose() {
-    _elevationController.dispose();
+    _hoverController.dispose();
     super.dispose();
   }
 
   void _setHover(bool isHovered) {
-    _isHovered = isHovered;
+    setState(() => _isHovered = isHovered);
     if (isHovered) {
-      _elevationController.forward();
+      _hoverController.forward();
     } else {
-      _elevationController.reverse();
+      _hoverController.reverse();
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return AnimatedFadeIn(
       delay: Duration(milliseconds: 120 * widget.index),
       child: MouseRegion(
         onEnter: (_) => _setHover(true),
         onExit: (_) => _setHover(false),
         child: AnimatedBuilder(
-          animation: _elevationController,
+          animation: _hoverController,
           builder: (context, child) {
-            return Card(
-              elevation: 4 + (_elevationController.value * 8),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Theme.of(context)
-                        .primaryColor
-                        .withOpacity(_elevationController.value * 0.5),
-                    width: 1,
+            final scale = 1.0 + (_hoverController.value * 0.02);
+            final translateY = -6 * _hoverController.value;
+
+            return Transform.translate(
+              offset: Offset(0, translateY),
+              child: Transform.scale(
+                scale: scale,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: (isDark ? AppColors.flutterLightBlue : AppColors.flutterDarkBlue)
+                            .withOpacity(0.12 * _hoverController.value),
+                        blurRadius: 25,
+                        offset: const Offset(0, 12),
+                      ),
+                      BoxShadow(
+                        color: Colors.black.withOpacity(isDark ? 0.25 : 0.06),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.darkCardBg : Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: _isHovered
+                            ? (isDark ? AppColors.flutterLightBlue : AppColors.flutterDarkBlue).withOpacity(0.5)
+                            : (isDark
+                                ? AppColors.borderDark
+                                : AppColors.borderLight),
+                        width: 1,
+                      ),
+                    ),
+                    child: child,
                   ),
                 ),
-                child: child,
               ),
             );
           },
           child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ScaleOnHover(
-                      scaleFactor: 1.05,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.asset(
-                          widget.project.image,
-                          width: 96,
-                          height: 96,
-                          fit: BoxFit.cover,
+            padding: const EdgeInsets.all(20),
+            child: isMobile
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: isDark ? null : Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Image.asset(
+                              widget.project.image,
+                              width: 140,
+                              height: 140,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
+                      const SizedBox(height: 20),
+                      Text(
+                        widget.project.title,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: _isHovered
+                                  ? (isDark ? AppColors.flutterLightBlue : AppColors.flutterDarkBlue)
+                                  : null,
+                            ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        widget.project.description,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: Theme.of(context).hintColor,
+                              height: 1.6,
+                            ),
+                      ),
+                      const SizedBox(height: 14),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: widget.project.tech
+                            .map((t) => Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: (isDark ? AppColors.flutterLightBlue : AppColors.flutterDarkBlue)
+                                        .withOpacity(isDark ? 0.15 : 0.08),
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(
+                                      color: (isDark ? AppColors.flutterLightBlue : AppColors.flutterDarkBlue).withOpacity(0.2),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    t,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelMedium
+                                        ?.copyWith(
+                                          color: isDark ? AppColors.flutterLightBlue : AppColors.flutterDarkBlue,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                  ),
+                                ))
+                            .toList(),
+                      ),
+                      const SizedBox(height: 20),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 8,
+                        children: [
+                          if (widget.project.playStore != null &&
+                              widget.project.playStore!.isNotEmpty)
+                            _buildActionButton(
+                              context,
+                              icon: Icons.shop,
+                              label: 'Play Store',
+                              onTap: () => _openUrl(widget.project.playStore!),
+                            ),
+                          if (widget.project.appStore != null &&
+                              widget.project.appStore!.isNotEmpty)
+                            _buildActionButton(
+                              context,
+                              icon: Icons.apple,
+                              label: 'App Store',
+                              onTap: () => _openUrl(widget.project.appStore!),
+                            ),
+                        ],
+                      ),
+                    ],
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            widget.project.title,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: _isHovered
-                                      ? Theme.of(context).primaryColor
-                                      : null,
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(14),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: isDark ? null : Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Image.asset(
+                                widget.project.image,
+                                width: 110,
+                                height: 110,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 24),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  widget.project.title,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w700,
+                                        color: _isHovered
+                                            ? (isDark ? AppColors.flutterLightBlue : AppColors.flutterDarkBlue)
+                                            : null,
+                                      ),
                                 ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            widget.project.description,
-                            style: Theme.of(context).textTheme.bodyLarge,
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 6,
-                            runSpacing: 6,
-                            children: widget.project.tech
-                                .map((t) => Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
+                                const SizedBox(height: 10),
+                                Text(
+                                  widget.project.description,
+                                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                        color: Theme.of(context).hintColor,
+                                        height: 1.6,
                                       ),
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context)
-                                            .primaryColor
-                                            .withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(4),
-                                        border: Border.all(
-                                          color: Theme.of(context)
-                                              .primaryColor
-                                              .withOpacity(0.3),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        t,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
-                                            ?.copyWith(
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                              fontWeight: FontWeight.w500,
+                                ),
+                                const SizedBox(height: 14),
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: widget.project.tech
+                                      .map((t) => Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 6,
                                             ),
-                                      ),
-                                    ))
-                                .toList(),
+                                            decoration: BoxDecoration(
+                                              color: (isDark ? AppColors.flutterLightBlue : AppColors.flutterDarkBlue)
+                                                  .withOpacity(isDark ? 0.15 : 0.08),
+                                              borderRadius: BorderRadius.circular(6),
+                                              border: Border.all(
+                                                color: (isDark ? AppColors.flutterLightBlue : AppColors.flutterDarkBlue).withOpacity(0.2),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              t,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .labelMedium
+                                                  ?.copyWith(
+                                                    color: isDark ? AppColors.flutterLightBlue : AppColors.flutterDarkBlue,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                            ),
+                                          ))
+                                      .toList(),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 8,
-                  children: [
-                    if (widget.project.playStore != null &&
-                        widget.project.playStore!.isNotEmpty)
-                      _buildActionButton(
-                        context,
-                        icon: Icons.shop,
-                        label: 'Play Store',
-                        onTap: () => _openUrl(widget.project.playStore!),
+                      const SizedBox(height: 20),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 8,
+                        children: [
+                          if (widget.project.playStore != null &&
+                              widget.project.playStore!.isNotEmpty)
+                            _buildActionButton(
+                              context,
+                              icon: Icons.shop,
+                              label: 'Play Store',
+                              onTap: () => _openUrl(widget.project.playStore!),
+                            ),
+                          if (widget.project.appStore != null &&
+                              widget.project.appStore!.isNotEmpty)
+                            _buildActionButton(
+                              context,
+                              icon: Icons.apple,
+                              label: 'App Store',
+                              onTap: () => _openUrl(widget.project.appStore!),
+                            ),
+                        ],
                       ),
-                    if (widget.project.appStore != null &&
-                        widget.project.appStore!.isNotEmpty)
-                      _buildActionButton(
-                        context,
-                        icon: Icons.apple,
-                        label: 'App Store',
-                        onTap: () => _openUrl(widget.project.appStore!),
-                      ),
-                  ],
-                ),
-              ],
-            ),
+                    ],
+                  ),
           ),
         ),
       ),
@@ -196,18 +337,10 @@ class _ProjectCardState extends State<ProjectCard>
     required String label,
     required VoidCallback onTap,
   }) {
-    return ScaleOnHover(
+    return _HoverActionButton(
+      icon: icon,
+      label: label,
       onTap: onTap,
-      child: OutlinedButton.icon(
-        onPressed: onTap,
-        icon: Icon(icon),
-        label: Text(label),
-        style: OutlinedButton.styleFrom(
-          side: BorderSide(
-            color: Theme.of(context).primaryColor,
-          ),
-        ),
-      ),
     );
   }
 
@@ -219,5 +352,82 @@ class _ProjectCardState extends State<ProjectCard>
         mode: LaunchMode.externalApplication,
       );
     }
+  }
+}
+
+/// Enhanced action button with hover animation
+class _HoverActionButton extends StatefulWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _HoverActionButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  State<_HoverActionButton> createState() => _HoverActionButtonState();
+}
+
+class _HoverActionButtonState extends State<_HoverActionButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  bool _isHovered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final buttonColor = isDark ? AppColors.flutterLightBlue : AppColors.flutterDarkBlue;
+    
+    return MouseRegion(
+      onEnter: (_) {
+        setState(() => _isHovered = true);
+        _controller.forward();
+      },
+      onExit: (_) {
+        setState(() => _isHovered = false);
+        _controller.reverse();
+      },
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          final scale = 1.0 + (_controller.value * 0.03);
+          return Transform.scale(
+            scale: scale,
+            child: OutlinedButton.icon(
+              onPressed: widget.onTap,
+              icon: Icon(widget.icon, size: 18),
+              label: Text(widget.label),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: _isHovered ? Colors.white : buttonColor,
+                backgroundColor: _isHovered ? buttonColor : Colors.transparent,
+                side: BorderSide(
+                  color: buttonColor,
+                  width: 2,
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 }

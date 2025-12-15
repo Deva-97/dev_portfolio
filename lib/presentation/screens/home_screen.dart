@@ -1,6 +1,11 @@
 ﻿// ignore_for_file: deprecated_member_use
 
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/utils/responsive.dart';
@@ -12,6 +17,7 @@ import '../widgets/stagger_animation.dart';
 import '../widgets/enhanced_widgets.dart';
 import '../widgets/hero_section.dart';
 import '../widgets/about_section.dart';
+import '../widgets/section_title.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onToggleTheme;
@@ -30,6 +36,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   bool _showFAB = false;
+  bool _showAppBarName = false;
 
   final GlobalKey _aboutKey = GlobalKey();
   final GlobalKey _skillsKey = GlobalKey();
@@ -39,19 +46,38 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_updateFAB);
+    _scrollController.addListener(_updateScrollState);
+
+    // Precache key images (logo + featured project images) after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      precacheImage(const AssetImage('assets/images/logo.png'), context);
+      for (final p in projectList) {
+        precacheImage(AssetImage(p.image), context);
+      }
+    });
   }
 
-  void _updateFAB() {
-    final show = _scrollController.offset > 300;
-    if (show != _showFAB) {
-      setState(() => _showFAB = show);
+  void _updateScrollState() {
+    final showFab = _scrollController.offset > 300;
+    // Show name after hero name is scrolled out
+    // Desktop (>=900): ~150px (padding + greeting + name on side layout)
+    // Mobile/Tablet (<900): ~420px (padding + logo ~280 + spacing 40 + greeting + name centered)
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktopLayout = screenWidth >= 900;
+    final scrollThreshold = isDesktopLayout ? 150.0 : 420.0;
+    final showName = _scrollController.offset > scrollThreshold;
+    
+    if (showFab != _showFAB || showName != _showAppBarName) {
+      setState(() {
+        _showFAB = showFab;
+        _showAppBarName = showName;
+      });
     }
   }
 
   @override
   void dispose() {
-    _scrollController.removeListener(_updateFAB);
+    _scrollController.removeListener(_updateScrollState);
     _scrollController.dispose();
     super.dispose();
   }
@@ -76,95 +102,86 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: ResponsiveAppBar(
         onToggleTheme: widget.onToggleTheme,
         themeMode: widget.themeMode,
+        showName: _showAppBarName,
         onAboutTap: () => _scrollToSection(_aboutKey),
         onExperienceTap: () => _scrollToSection(_skillsKey),
         onProjectsTap: () => _scrollToSection(_projectsKey),
         onContactTap: () => _scrollToSection(_contactKey),
       ),
-      body: SingleChildScrollView(
-        controller: _scrollController,
-        child: Column(
-          children: [
-            // Hero Section
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: isMobile ? 20 : 48,
-                vertical: 0,
-              ),
-              child: HeroSection(
-                name: 'Devendiran Thiyagarajan',
-                title: 'Flutter Developer',
-                subtitle:
-                    'I create high-quality Flutter apps with a focus on real-time capabilities, smooth UI interactions, and scalable architecture. My work spans smart home automation, enterprise systems, and AI-powered applications.',
-                onViewWork: () => _scrollToSection(_projectsKey),
-                onGetInTouch: () => _scrollToSection(_contactKey),
-              ),
+      body: SelectionArea(
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1240),
+              child: Column(
+                children: [
+                // Hero Section
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isMobile ? 20 : 48,
+                    vertical: 0,
+                  ),
+                  child: HeroSection(
+                    name: 'Devendiran Thiyagarajan',
+                    title: 'Flutter Developer',
+                    subtitle:
+                        'I build production-ready Flutter applications with a strong focus on real-time functionality, scalable architecture, and smooth user experience. With 2+ years of hands-on experience, I\'ve worked on smart home automation systems, enterprise mobile solutions, and AI-powered applications across Android, iOS, and tablet platforms.',
+                    onViewWork: () => _scrollToSection(_projectsKey),
+                    onGetInTouch: () => _scrollToSection(_contactKey),
+                  ),
+                ),
+
+                // About Section
+                Container(
+                  key: _aboutKey,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isMobile ? 20 : 48,
+                    vertical: 60,
+                  ),
+                  child: _buildAboutSection(context, isMobile),
+                ),
+
+                // Skills Section
+                Container(
+                  key: _skillsKey,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isMobile ? 28 : 48,
+                    vertical: 60,
+                  ),
+                  child: _buildSkillsSection(context, isMobile),
+                ),
+
+                // Projects Section
+                Container(
+                  key: _projectsKey,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isMobile ? 20 : 48,
+                    vertical: 60,
+                  ),
+                  child: _buildProjectsSection(context, isMobile),
+                ),
+
+                // Contact Section
+                Container(
+                  key: _contactKey,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isMobile ? 20 : 48,
+                    vertical: 60,
+                  ),
+                  child: _buildContactSection(context, isMobile),
+                ),
+
+                // Footer
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 40),
+                  child: _buildFooter(context),
+                ),
+              ],
             ),
-
-            // Statistics Section
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: isMobile ? 20 : 48,
-                vertical: 40,
-              ),
-              child: _buildStatsSection(context, isMobile),
-            ),
-
-            const Divider(height: 1),
-
-            // About Section
-            Container(
-              key: _aboutKey,
-              padding: EdgeInsets.symmetric(
-                horizontal: isMobile ? 20 : 48,
-                vertical: 60,
-              ),
-              child: _buildAboutSection(context, isMobile),
-            ),
-
-            const Divider(height: 1),
-
-            // Skills Section
-            Container(
-              key: _skillsKey,
-              padding: EdgeInsets.symmetric(
-                horizontal: isMobile ? 20 : 48,
-                vertical: 60,
-              ),
-              child: _buildSkillsSection(context, isMobile),
-            ),
-
-            const Divider(height: 1),
-
-            // Projects Section
-            Container(
-              key: _projectsKey,
-              padding: EdgeInsets.symmetric(
-                horizontal: isMobile ? 20 : 48,
-                vertical: 60,
-              ),
-              child: _buildProjectsSection(context, isMobile),
-            ),
-
-            const Divider(height: 1),
-
-            // Contact Section
-            Container(
-              key: _contactKey,
-              padding: EdgeInsets.symmetric(
-                horizontal: isMobile ? 20 : 48,
-                vertical: 60,
-              ),
-              child: _buildContactSection(context, isMobile),
-            ),
-
-            // Footer
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 40),
-              child: _buildFooter(context),
-            ),
-          ],
+          ),
         ),
+      ),
       ),
       floatingActionButton: _showFAB
           ? AnimatedFAB(
@@ -182,43 +199,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildStatsSection(BuildContext context, bool isMobile) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        _buildStatItem(context, '2+', 'Years Experience'),
-        _buildStatItem(context, '10+', 'Projects Completed'),
-        _buildStatItem(context, '5+', 'Happy Clients'),
-      ],
-    );
-  }
-
-  Widget _buildStatItem(BuildContext context, String value, String label) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            value,
-            style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                  color: Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.w700,
-                ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).hintColor,
-                ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildAboutSection(BuildContext context, bool isMobile) {
     return AboutSection(isMobile: isMobile);
   }
@@ -229,37 +209,45 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          'Skills & Technologies',
-          style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                color: Theme.of(context).brightness == Brightness.light
-                    ? const Color(0xFF1F2937)
-                    : null,
+        const SectionTitle(title: 'Skills & Technologies', useGradient: true),
+        const SizedBox(height: 32),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final maxWidth = constraints.maxWidth;
+            // 3 columns on desktop (>900), 2 on tablet and mobile
+            final crossAxisCount = maxWidth > 900
+                ? 3
+                : 2;
+            // Aspect ratio - higher = shorter cards
+            final aspectRatio = maxWidth > 900
+                ? 1.4
+                : maxWidth > 600
+                    ? 1.9
+                    : 1.05;
+            // Spacing - desktop 24, tablet 20, mobile 18
+            final spacing = maxWidth > 900 ? 24.0 : (maxWidth > 600 ? 20.0 : 18.0);
+            return GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                mainAxisSpacing: spacing,
+                crossAxisSpacing: spacing,
+                childAspectRatio: aspectRatio,
               ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 48),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount:
-                isMobile ? 1 : (Responsive.isTablet(context) ? 2 : 3),
-            mainAxisSpacing: 24,
-            crossAxisSpacing: 24,
-            childAspectRatio: 0.95,
-          ),
-          itemCount: skills.length,
-          itemBuilder: (context, index) {
-            final skill = skills[index];
-            return AnimatedFadeIn(
-              delay: Duration(milliseconds: 100 * index),
-              child: SkillCard(
-                icon: skill['icon'] as IconData,
-                title: skill['title'] as String,
-                description: skill['description'] as String,
-                tags: skill['tags'] as List<String>,
-              ),
+              itemCount: skills.length,
+              itemBuilder: (context, index) {
+                final skill = skills[index];
+                return AnimatedFadeIn(
+                  delay: Duration(milliseconds: 80 * index),
+                  child: SkillCard(
+                    icon: skill['icon'] as IconData,
+                    title: skill['title'] as String,
+                    description: skill['description'] as String,
+                    assetPath: skill['asset'] as String?,
+                  ),
+                );
+              },
             );
           },
         ),
@@ -271,44 +259,63 @@ class _HomeScreenState extends State<HomeScreen> {
     return [
       {
         'icon': Icons.flutter_dash,
-        'title': 'Flutter',
-        'description':
-            'Building beautiful, fast, and natively compiled multi-platform applications',
-        'tags': ['Mobile', 'UI/UX', 'Cross-Platform']
+        'asset': 'assets/images/flutter logo.svg',
+        'title': 'Flutter Development',
+        'description': 'Cross-platform application development using Flutter with focus on performance and clean UI.',
       },
       {
         'icon': Icons.code,
-        'title': 'Dart',
-        'description':
-            'Object-oriented programming with strong typing and async/await patterns',
-        'tags': ['OOP', 'Async', 'Type Safe']
+        'asset': 'assets/images/dart.svg',
+        'title': 'Dart Programming',
+        'description': 'Writing clean and structured Dart code for scalable Flutter applications.',
+      },
+      {
+        'icon': Icons.architecture,
+        'asset': 'assets/images/architecture.png',
+        'title': 'App Architecture',
+        'description': 'Designing Flutter applications using Clean Architecture and MVVM patterns.',
+      },
+      {
+        'icon': Icons.account_tree,
+        'asset': 'assets/images/state_management.png',
+        'title': 'State Management',
+        'description': 'Managing application state using Provider and BLoC for predictable app behavior.',
       },
       {
         'icon': Icons.cloud,
-        'title': 'Firebase',
-        'description':
-            'Cloud infrastructure for authentication, real-time databases, and hosting',
-        'tags': ['Backend', 'Database', 'Auth']
+        'asset': 'assets/images/firebase.svg',
+        'title': 'Firebase Integration',
+        'description': 'Using Firebase for authentication, databases, notifications, and crash monitoring.',
       },
       {
-        'icon': Icons.storage,
-        'title': 'State Management',
-        'description':
-            'Provider, Riverpod, BLoC patterns for scalable app architecture',
-        'tags': ['Architecture', 'Performance', 'Scalability']
+        'icon': Icons.sensors,
+        'asset': 'assets/images/mqtt.svg',
+        'title': 'Real-Time Communication',
+        'description': 'Implementing real-time communication using MQTT for automation and IoT apps.',
       },
       {
         'icon': Icons.api,
-        'title': 'REST APIs',
-        'description':
-            'HTTP integration, JSON parsing, and API design patterns',
-        'tags': ['Backend', 'Integration', 'Networking']
+        'asset': 'assets/images/api.svg',
+        'title': 'API Integration',
+        'description': 'Integrating REST APIs for asynchronous data handling and app communication.',
       },
       {
-        'icon': Icons.build,
-        'title': 'Git & CI/CD',
-        'description': 'Version control and automated deployment pipelines',
-        'tags': ['DevOps', 'Automation', 'Collaboration']
+        'icon': Icons.devices,
+        'asset': 'assets/images/devices.png',
+        'title': 'Multi-Platform UI',
+        'description': 'Building responsive and adaptive UI for Android, iOS, and tablet devices.',
+      },
+      {
+        'icon': Icons.device_hub,
+        'asset': 'assets/images/github_logo.svg',
+        'title': 'Development Tools',
+        'description': 'Using Git, GitHub, Android Studio, VS Code, and Xcode for development workflows.',
+      },
+      {
+        'icon': Icons.upload,
+        'asset': 'assets/images/app_deployment.png',
+        'title': 'App Deployment',
+        'description': 'Managing build configurations and deploying apps to Play Store and App Store.',
       },
     ];
   }
@@ -317,15 +324,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          'Featured Projects',
-          style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                color: Theme.of(context).brightness == Brightness.light
-                    ? const Color(0xFF1F2937)
-                    : null,
-              ),
-          textAlign: TextAlign.center,
-        ),
+        const SectionTitle(title: 'Featured Projects', useGradient: true),
         const SizedBox(height: 48),
         StaggeredAnimation(
           children: projectList.asMap().entries.map((entry) {
@@ -343,51 +342,79 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildContactSection(BuildContext context, bool isMobile) {
+    const resumeUrl = 'Devendiran_Thiyagarajan_Resume.pdf';
+    final contactItems = [
+      {
+        'icon': Icons.email_outlined,
+        'label': 'Email',
+        'value': 'devendiran03@gmail.com',
+        'url': 'mailto:devendiran03@gmail.com',
+      },
+      {
+        'icon': Icons.phone,
+        'label': 'Phone',
+        'value': '+91 9952583296',
+        'url': 'tel:+919952583296',
+      },
+      {
+        'svgAsset': 'assets/images/linkedin.svg',
+        'label': 'LinkedIn',
+        'value': 'linkedin.com/in/devendiran-t',
+        'url': 'https://linkedin.com/in/devendiran-t',
+      },
+      {
+        'svgAsset': 'assets/images/resume.svg',
+        'label': 'Resume',
+        'value': 'View Resume PDF',
+        'url': resumeUrl,
+      },
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          'Get In Touch',
-          style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                color: Theme.of(context).brightness == Brightness.light
-                    ? const Color(0xFF1F2937)
-                    : null,
-              ),
-          textAlign: TextAlign.center,
-        ),
+        const SectionTitle(title: 'Get In Touch', useGradient: true),
         const SizedBox(height: 24),
         Text(
-          'I\'m currently available for freelance work and exciting opportunities. Let\'s build something amazing together!',
+          'I\'m currently open to full-time Flutter developer opportunities and team-based product roles. Feel free to reach out if you\'d like to connect or discuss a role.',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: Theme.of(context).hintColor,
                 height: 1.8,
               ),
+          textAlign: TextAlign.center,
         ),
         const SizedBox(height: 40),
-        StaggeredAnimation(
-          children: [
-            _buildContactCard(
-              context,
-              icon: Icons.email_outlined,
-              label: 'Email',
-              value: 'devendiran03@gmail.com',
-              url: 'mailto:devendiran03@gmail.com',
-            ),
-            _buildContactCard(
-              context,
-              icon: Icons.language,
-              label: 'GitHub',
-              value: 'github.com/devendiran',
-              url: 'https://github.com',
-            ),
-            _buildContactCard(
-              context,
-              icon: Icons.work_outline,
-              label: 'LinkedIn',
-              value: 'linkedin.com/in/devendiran-t',
-              url: 'https://linkedin.com/in/devendiran-t',
-            ),
-          ],
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final maxWidth = constraints.maxWidth;
+            const spacing = 20.0;
+            final columns = isMobile || maxWidth < 900 ? 1 : 2;
+            final cardWidth = math.min(
+              (maxWidth - spacing * (columns - 1)) / columns,
+              520,
+            ).toDouble();
+
+            return Wrap(
+              alignment: WrapAlignment.center,
+              spacing: spacing,
+              runSpacing: spacing,
+              children: contactItems.map((item) {
+                final icon = item['icon'] as IconData?;
+                final svgAsset = item['svgAsset'] as String?;
+                return SizedBox(
+                  width: cardWidth,
+                  child: _buildContactCard(
+                    context,
+                    icon: icon,
+                    svgAsset: svgAsset,
+                    label: item['label'] as String,
+                    value: item['value'] as String,
+                    url: item['url'] as String,
+                  ),
+                );
+              }).toList(),
+            );
+          },
         ),
       ],
     );
@@ -395,87 +422,254 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildContactCard(
     BuildContext context, {
-    required IconData icon,
+    IconData? icon,
+    String? svgAsset,
     required String label,
     required String value,
     required String url,
   }) {
-    return ScaleOnHover(
-      onTap: () => _openUrl(url),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: Theme.of(context).dividerColor,
+    return _ContactCardHover(
+      icon: icon,
+      svgAsset: svgAsset,
+      label: label,
+      value: value,
+      url: url,
+    );
+  }
+
+  Widget _buildFooter(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+      child: Column(
+        children: [
+          Text(
+            'Availability: Full-time Flutter Developer',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).hintColor,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+            textAlign: TextAlign.center,
           ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(
-                icon,
-                color: Theme.of(context).primaryColor,
-              ),
-            ),
-            const SizedBox(width: 20),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).hintColor,
+          const SizedBox(height: 8),
+          Text(
+            'Locations: Chennai | Bangalore | Hyderabad',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).hintColor,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '© 2025 Devendiran Thiyagarajan',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).hintColor,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ContactCardHover extends StatefulWidget {
+  final IconData? icon;
+  final String? svgAsset;
+  final String label;
+  final String value;
+  final String url;
+
+  const _ContactCardHover({
+    this.icon,
+    this.svgAsset,
+    required this.label,
+    required this.value,
+    required this.url,
+  }) : assert(icon != null || svgAsset != null, 'Either icon or svgAsset must be provided');
+
+  @override
+  State<_ContactCardHover> createState() => _ContactCardHoverState();
+}
+
+class _ContactCardHoverState extends State<_ContactCardHover>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  bool _isHovered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onHover(bool hovered) {
+    setState(() => _isHovered = hovered);
+    if (hovered) {
+      _controller.forward();
+    } else {
+      _controller.reverse();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
+
+    return MouseRegion(
+      onEnter: (_) => _onHover(true),
+      onExit: (_) => _onHover(false),
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () => _openUrl(),
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            final scale = 1.0 + (_controller.value * 0.02);
+            final translateY = -3 * _controller.value;
+
+            return Transform.translate(
+              offset: Offset(0, translateY),
+              child: Transform.scale(
+                scale: scale,
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? const Color(0xFF1E293B)
+                        : Colors.white,
+                    border: Border.all(
+                      color: _isHovered
+                          ? primaryColor.withOpacity(0.5)
+                          : (isDark
+                              ? const Color(0xFF334155)
+                              : const Color(0xFFE2E8F0)),
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: primaryColor.withOpacity(0.1 * _controller.value),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                      if (!isDark)
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
                         ),
+                    ],
                   ),
-                  Text(
-                    value,
-                    style: Theme.of(context).textTheme.titleLarge,
+                  child: Row(
+                    children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 150),
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: _isHovered
+                              ? primaryColor
+                              : primaryColor.withOpacity(isDark ? 0.15 : 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: widget.svgAsset != null
+                            ? SvgPicture.asset(
+                                widget.svgAsset!,
+                                width: 24,
+                                height: 24,
+                                colorFilter: ColorFilter.mode(
+                                  _isHovered ? Colors.white : primaryColor,
+                                  BlendMode.srcIn,
+                                ),
+                              )
+                            : Icon(
+                                widget.icon,
+                                color: _isHovered ? Colors.white : primaryColor,
+                                size: 24,
+                              ),
+                      ),
+                      const SizedBox(width: 20),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.label,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(context).hintColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                            ),
+                            const SizedBox(height: 4),
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                widget.value,
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: _isHovered ? primaryColor : null,
+                                    ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: _isHovered
+                              ? primaryColor.withOpacity(0.1)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.arrow_outward_rounded,
+                          color: _isHovered
+                              ? primaryColor
+                              : primaryColor.withOpacity(0.4),
+                          size: 20,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-            Icon(
-              Icons.arrow_outward,
-              color: Theme.of(context).primaryColor.withOpacity(0.5),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildFooter(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          'Built with Flutter Spirit',
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Â© 2024 Devendiran Thiyagarajan. All rights reserved.',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).hintColor,
-              ),
-        ),
-      ],
-    );
-  }
-
-  void _openUrl(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(
-        uri,
-        mode: LaunchMode.externalApplication,
-      );
+  void _openUrl() async {
+    // Check if it's a resume PDF
+    if (widget.url.contains('Devendiran_Thiyagarajan_Resume')) {
+      // Open PDF in new browser tab for viewing/printing/downloading
+      html.window.open(widget.url, '_blank');
+    } else {
+      final uri = Uri.parse(widget.url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+      }
     }
   }
 }

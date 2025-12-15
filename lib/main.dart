@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
 import 'presentation/screens/home_screen.dart';
+import 'presentation/screens/splash_screen.dart';
 
 void main() {
   runApp(const PortfolioApp());
@@ -15,11 +16,18 @@ class PortfolioApp extends StatefulWidget {
 
 class _PortfolioAppState extends State<PortfolioApp> {
   ThemeMode _themeMode = ThemeMode.dark;
+  bool _showSplash = true;
 
   void toggleTheme() {
     setState(() {
       _themeMode =
           _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+    });
+  }
+
+  void _onSplashComplete() {
+    setState(() {
+      _showSplash = false;
     });
   }
 
@@ -33,10 +41,12 @@ class _PortfolioAppState extends State<PortfolioApp> {
       themeMode: _themeMode,
       themeAnimationDuration: const Duration(milliseconds: 400),
       themeAnimationCurve: Curves.easeInOut,
-      home: HomeScreen(
-        onToggleTheme: toggleTheme,
-        themeMode: _themeMode,
-      ),
+      home: _showSplash
+          ? SplashScreen(onComplete: _onSplashComplete)
+          : HomeScreen(
+              onToggleTheme: toggleTheme,
+              themeMode: _themeMode,
+            ),
     );
   }
 }

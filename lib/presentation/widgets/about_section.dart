@@ -1,7 +1,9 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
 import 'animated_fade_in.dart';
+import 'section_title.dart';
 
 /// Enhanced About Me section with animated content and visual elements
 class AboutSection extends StatefulWidget {
@@ -19,7 +21,6 @@ class AboutSection extends StatefulWidget {
 class _AboutSectionState extends State<AboutSection>
     with SingleTickerProviderStateMixin {
   late AnimationController _floatingController;
-  late Animation<double> _floatingAnimation;
 
   @override
   void initState() {
@@ -29,9 +30,7 @@ class _AboutSectionState extends State<AboutSection>
       vsync: this,
     )..repeat(reverse: true);
 
-    _floatingAnimation = Tween<double>(begin: 0, end: 20).animate(
-      CurvedAnimation(parent: _floatingController, curve: Curves.easeInOut),
-    );
+
   }
 
   @override
@@ -42,25 +41,16 @@ class _AboutSectionState extends State<AboutSection>
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth >= 600 && screenWidth < 900;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Title
-        AnimatedFadeIn(
-          duration: const Duration(milliseconds: 600),
-          child: Text(
-            'About Me',
-            style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: Theme.of(context).brightness == Brightness.light
-                      ? const Color(0xFF1F2937)
-                      : null,
-                ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-        const SizedBox(height: 48),
+        // Title with underline
+        const SectionTitle(title: 'About Me', useGradient: true),
+        const SizedBox(height: 40),
 
         // Content with logo
         if (widget.isMobile)
@@ -68,229 +58,305 @@ class _AboutSectionState extends State<AboutSection>
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildAnimatedLogo(context),
+              _buildAnimatedLogo(context, size: 260),
+              const SizedBox(height: 32),
+              _buildAboutText(context),
+              const SizedBox(height: 32),
+              _buildStatsRow(context, isMobile: true),
+            ],
+          )
+        else if (isTablet)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildAnimatedLogo(context, size: 280),
               const SizedBox(height: 40),
               _buildAboutText(context),
+              const SizedBox(height: 40),
+              _buildStatsRow(context, isMobile: false),
             ],
           )
         else
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 400),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: 300,
-                  height: 300,
-                  child: _buildAnimatedLogo(context),
-                ),
-                const SizedBox(width: 60),
-                Expanded(
-                  child: _buildAboutText(context),
-                ),
-              ],
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 300,
+                    height: 300,
+                    child: _buildAnimatedLogo(context, size: 300),
+                  ),
+                  const SizedBox(width: 48),
+                  Expanded(
+                    child: _buildAboutText(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 48),
+              // Stats Row
+              _buildStatsRow(context, isMobile: false),
+            ],
           ),
-
-        const SizedBox(height: 60),
-
-        // Key Points
-        _buildKeyPoints(context),
       ],
     );
   }
 
-  Widget _buildAnimatedLogo(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _floatingAnimation,
-      builder: (context, child) {
-        return Center(
-          child: Transform.translate(
-            offset: Offset(0, _floatingAnimation.value),
-            child: Container(
-              width: 260,
-              height: 260,
+  Widget _buildStatsRow(BuildContext context, {required bool isMobile}) {
+    final stats = [
+      {'title': 'Experience', 'value': '2+ Years', 'label': 'Professional Flutter Developer'},
+      {'title': 'App Delivery', 'value': 'Production Apps', 'label': 'Android · iOS · Tablet'},
+      {'title': 'Core Focus', 'value': 'Real-Time Systems', 'label': 'IoT · Automation · Enterprise Apps'},
+    ];
+
+    if (isMobile) {
+      return Column(
+        children: stats.map((stat) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: _StatCard(title: stat['title']!, value: stat['value']!, label: stat['label']!),
+          );
+        }).toList(),
+      );
+    }
+
+    return Row(
+      children: stats.map((stat) {
+        return Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: _StatCard(title: stat['title']!, value: stat['value']!, label: stat['label']!),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildAnimatedLogo(BuildContext context, {double size = 320}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final borderRadius = size > 280 ? 28.0 : 24.0;
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(borderRadius),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.15),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
+            spreadRadius: 2,
+          ),
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.15),
+            blurRadius: 40,
+            spreadRadius: 4,
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(borderRadius),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.asset(
+              'assets/images/dev_portfolio.jpg',
+              fit: BoxFit.cover,
+            ),
+            Container(
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
                 gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                   colors: [
-                    Theme.of(context).primaryColor.withOpacity(0.15),
-                    Theme.of(context).primaryColor.withOpacity(0.05),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                border: Border.all(
-                  color: Theme.of(context).primaryColor.withOpacity(0.2),
-                  width: 2,
-                ),
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildRotatingFlutterIcon(context),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Flutter\nDeveloper',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).primaryColor,
-                            fontSize: 18,
-                          ),
-                    ),
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.4),
                   ],
                 ),
               ),
             ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildRotatingFlutterIcon(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _floatingController,
-      builder: (context, child) {
-        return Transform.rotate(
-          angle: _floatingController.value * 6.28,
-          child: Icon(
-            Icons.flutter_dash,
-            size: 70,
-            color: Theme.of(context).primaryColor,
-          ),
-        );
-      },
+            // Decorative border
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(borderRadius),
+                border: Border.all(
+                  color: AppColors.primary.withOpacity(0.25),
+                  width: 1.5,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   Widget _buildAboutText(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobileOrTablet = screenWidth < 900;
+    
     return AnimatedFadeIn(
       delay: const Duration(milliseconds: 200),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: isMobileOrTablet ? CrossAxisAlignment.center : CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Crafting Beautiful & Functional Mobile Experiences',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: Theme.of(context).primaryColor,
-                ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'I\'m a dedicated Flutter developer with a passion for creating intuitive and visually appealing mobile applications. With expertise in Dart and the Flutter framework, I specialize in building cross-platform apps that deliver native-like performance on both iOS and Android.\n\n'
-            'My approach combines clean architecture, efficient state management, and attention to UI/UX details to create apps that users love. I\'m constantly learning and staying updated with the latest Flutter developments to deliver cutting-edge solutions.',
+            'I\'m a Flutter Developer with over 2+ years of professional experience building cross-platform mobile applications for Android, iOS, and tablet devices. I\'ve worked on real-world products including enterprise internal systems, smart home automation apps, and AI-powered mobile solutions used in production environments.\n\n'
+            'My development approach focuses on clean, maintainable code and well-structured architecture. I regularly work with patterns such as Clean Architecture and MVVM, and I have hands-on experience integrating Firebase services, real-time communication using MQTT, and REST APIs to build reliable, scalable applications.\n\n'
+            'I enjoy collaborating with designers, backend developers, and QA teams to translate complex requirements into stable, user-friendly Flutter applications that perform well in real usage.',
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(context).hintColor,
+                  color: Theme.of(context).hintColor.withOpacity(0.9),
                   height: 1.8,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w400,
                 ),
+            textAlign: isMobileOrTablet ? TextAlign.center : TextAlign.start,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildKeyPoints(BuildContext context) {
-    final points = [
-      {
-        'icon': Icons.code,
-        'title': 'Clean Code',
-        'description':
-            'Well-structured, maintainable code following best practices'
-      },
-      {
-        'icon': Icons.palette,
-        'title': 'UI/UX Design',
-        'description':
-            'Beautiful interfaces with smooth animations and interactions'
-      },
-      {
-        'icon': Icons.speed,
-        'title': 'Performance',
-        'description': 'Optimized apps that run smoothly on all devices'
-      },
-    ];
+}
 
-    if (widget.isMobile) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: points
-            .map((point) => Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: _buildKeyPointCard(context, point),
-                ))
-            .toList(),
-      );
-    }
+/// Stat card widget with hover animation for About section
+class _StatCard extends StatefulWidget {
+  final String title;
+  final String value;
+  final String label;
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: points
-          .asMap()
-          .entries
-          .map((entry) => Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: _buildKeyPointCard(context, entry.value),
-                ),
-              ))
-          .toList(),
+  const _StatCard({
+    required this.title,
+    required this.value,
+    required this.label,
+  });
+
+  @override
+  State<_StatCard> createState() => _StatCardState();
+}
+
+class _StatCardState extends State<_StatCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  bool _isHovered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
     );
   }
 
-  Widget _buildKeyPointCard(
-    BuildContext context,
-    Map<String, dynamic> point,
-  ) {
-    return AnimatedFadeIn(
-      delay: const Duration(milliseconds: 300),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Theme.of(context).dividerColor,
-          ),
-          color: Theme.of(context).colorScheme.surface,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                point['icon'] as IconData,
-                color: Theme.of(context).primaryColor,
-                size: 24,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              point['title'] as String,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onHover(bool hovered) {
+    setState(() => _isHovered = hovered);
+    if (hovered) {
+      _controller.forward();
+    } else {
+      _controller.reverse();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final cardHeight = screenWidth < 600 ? 150.0 : 140.0;
+
+    return MouseRegion(
+      onEnter: (_) => _onHover(true),
+      onExit: (_) => _onHover(false),
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          final scale = 1.0 + (_controller.value * 0.03);
+          final translateY = -4 * _controller.value;
+
+          return Transform.translate(
+            offset: Offset(0, translateY),
+            child: Transform.scale(
+              scale: scale,
+              child: Container(
+                height: cardHeight,
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? const Color(0xFF1E293B)
+                      : Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: _isHovered
+                        ? primaryColor.withOpacity(0.5)
+                        : (isDark
+                            ? const Color(0xFF334155)
+                            : const Color(0xFFE2E8F0)),
+                    width: 1,
                   ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              point['description'] as String,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).hintColor,
-                    height: 1.5,
+                  boxShadow: [
+                    BoxShadow(
+                      color: primaryColor.withOpacity(0.1 * _controller.value),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                    if (!isDark)
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                      ),
+                  ],
+                ),
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        widget.title,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).hintColor,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.5,
+                            ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        widget.value,
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineSmall
+                            ?.copyWith(
+                              color: isDark ? AppColors.flutterLightBlue : AppColors.flutterDarkBlue,
+                              fontWeight: FontWeight.w800,
+                            ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        widget.label,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).hintColor,
+                              fontWeight: FontWeight.w400,
+                            ),
+                      ),
+                    ],
                   ),
+                ),
+              ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
