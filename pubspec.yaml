@@ -30,9 +30,8 @@ flutter:
     - assets/images/github_logo.svg
     - assets/images/api.svg
     - assets/images/resume.svg
-    - assets/images/dev_portfolio.jpg
+    - assets/images/dev_portfolio.png
     - assets/images/logo.png
-    - assets/images/profile.jpg
     - assets/images/smart_things.png
     - assets/images/mudhal_ai.png
     - assets/images/tab_app.png

@@ -30,7 +30,10 @@ class _AboutSectionState extends State<AboutSection>
       vsync: this,
     )..repeat(reverse: true);
 
-
+    // Pre-cache the about image for all views to avoid loading issues
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      precacheImage(const AssetImage('assets/images/dev_portfolio.png'), context);
+    });
   }
 
   @override
@@ -163,8 +166,13 @@ class _AboutSectionState extends State<AboutSection>
           fit: StackFit.expand,
           children: [
             Image.asset(
-              'assets/images/dev_portfolio.jpg',
+              'assets/images/dev_portfolio.png',
               fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                color: Colors.grey[200],
+                alignment: Alignment.center,
+                child: const Icon(Icons.broken_image, size: 48, color: Colors.grey),
+              ),
             ),
             Container(
               decoration: BoxDecoration(

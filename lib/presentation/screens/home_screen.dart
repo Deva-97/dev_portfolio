@@ -232,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ? 1.4
                 : maxWidth > 600
                   ? 1.9
-                  : 0.80; // Slightly decrease aspect ratio for mobile to increase card height
+                  : 0.7; // Decrease aspect ratio for mobile to make cards taller
             // Spacing - desktop 24, tablet 20, mobile 24 (more vertical gap for mobile)
             final spacing = maxWidth > 900 ? 24.0 : (maxWidth > 600 ? 20.0 : 24.0);
             return Column(
@@ -486,8 +486,8 @@ class _HomeScreenState extends State<HomeScreen> {
             '© 2025 Devendiran Thiyagarajan',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).hintColor,
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
+                  fontSize: Responsive.isMobile(context) ? 12 : 14,
+                  fontWeight: FontWeight.w500,
                 ),
             textAlign: TextAlign.center,
           ),
