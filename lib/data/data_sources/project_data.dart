@@ -8,6 +8,7 @@ final List<Project> projectList = [
     tech: ["Flutter", "Dart", "MQTT", "Firebase", "Firestore", "Crashlytics", "Authentication", "Remote config", "Messaging", "Kotlin", "Xcode", "Home Screen Widgets", "Clean Architecture", "Android", "iOS"],
     playStore:
         "https://play.google.com/store/apps/details?id=com.onwords.smart_things&hl=en_IN",
+    appStore: "https://apps.apple.com/au/app/onwords-smart-things/id6449142647",
     image: "assets/images/smart_things.png",
   ),
   Project(
@@ -34,6 +35,7 @@ final List<Project> projectList = [
     tech: ["Flutter", "Dart", "Tablet App", "Firebase", "MQTT", "Storage", "Crashlytics", "Android", "iOS"],
     playStore:
         "https://play.google.com/store/apps/details?id=com.onwords.ost_tab_app&hl=en_IN",
+    appStore: "https://apps.apple.com/au/app/onwords-st/id6538719536",
     image: "assets/images/tab_app.png",
   ),
 ];
