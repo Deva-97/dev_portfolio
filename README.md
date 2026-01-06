@@ -1,24 +1,59 @@
-Dev Portfolio - Flutter Template
-================================
 
-This is a ready-to-use Flutter portfolio template created for Devendiran.
-It includes light/dark themes, responsive layout, animations, drawer for mobile,
-improved typography, and sample project data.
+# Dev Portfolio
 
-How to use:
-1. Install Flutter SDK: https://flutter.dev/docs/get-started/install
-2. Copy this folder into your machine or download the zip.
-3. From the project folder run:
-   flutter pub get
-   flutter run
+A cross-platform developer portfolio built with Flutter. This project showcases your professional experience, skills, and projects in a modern, responsive UI. It supports web, Android, and Windows platforms.
 
-Replace the placeholder links and images in:
- - lib/data/data_sources/project_data.dart
- - lib/data/data_sources/experience_data.dart
- - assets/images/*
+## Features
+- Responsive design for web and mobile
+- Sections for About, Experience, Projects, and Contact
+- Animated transitions and interactive widgets
+- Organized code structure for scalability
+- Easy to customize with your own data
 
-Build for web:
- - flutter build web
- - deploy the build/web folder to GitHub Pages / Netlify / Firebase Hosting
+## Getting Started
 
-Files included: main.dart, theme files, models, sample data, screens, widgets, pubspec.yaml, and assets.
+### Prerequisites
+- [Flutter SDK](https://flutter.dev/docs/get-started/install)
+- Dart SDK (included with Flutter)
+- (Optional) Android Studio or Visual Studio Code for development
+
+### Installation
+1. Clone the repository:
+    ```sh
+    git clone <your-repo-url>
+    cd dev_portfolio
+    ```
+2. Get dependencies:
+    ```sh
+    flutter pub get
+    ```
+3. Run the app:
+    - **Web:**
+       ```sh
+       flutter run -d chrome
+       ```
+    - **Android:**
+       ```sh
+       flutter run -d android
+       ```
+    - **Windows:**
+       ```sh
+       flutter run -d windows
+       ```
+
+## Project Structure
+- `lib/` - Main Dart codebase
+   - `core/` - Theme and utilities
+   - `data/` - Data models and sources
+   - `presentation/` - Screens and widgets
+- `assets/` - Images and other assets
+- `web/` - Web-specific files
+- `android/`, `windows/` - Platform-specific files
+
+## Customization
+- Update your experience and project data in `lib/data/data_sources/`
+- Change theme colors in `lib/core/theme/`
+- Add images to `assets/images/`
+
+## Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
