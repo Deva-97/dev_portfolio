@@ -128,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     name: 'Devendiran Thiyagarajan',
                     title: 'Flutter Developer',
                     subtitle:
-                        'I build production-ready Flutter applications with a strong focus on real-time functionality, scalable architecture, and smooth user experience. With 2+ years of hands-on experience, I\'ve worked on smart home automation systems, enterprise mobile solutions, and AI-powered applications across Android, iOS, and tablet platforms.',
+                        'I build production-ready Flutter applications with a strong focus on real-time functionality, scalable architecture, and smooth user experience. With 3 years of hands-on experience, I\'ve worked on smart home automation systems, enterprise mobile solutions, and AI-powered applications across Android, iOS, and tablet platforms.',
                     onViewWork: () => _scrollToSection(_projectsKey),
                     onGetInTouch: () => _scrollToSection(_contactKey),
                   ),

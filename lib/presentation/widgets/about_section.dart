@@ -213,7 +213,7 @@ class _AboutSectionState extends State<AboutSection>
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'I\'m a Flutter Developer with over 2+ years of professional experience building cross-platform mobile applications for Android, iOS, and tablet devices. I\'ve worked on real-world products including enterprise internal systems, smart home automation apps, and AI-powered mobile solutions used in production environments.\n\n'
+            'I\'m a Flutter Developer with over 3 years of professional experience building cross-platform mobile applications for Android, iOS, and tablet devices. I\'ve worked on real-world products including enterprise internal systems, smart home automation apps, and AI-powered mobile solutions used in production environments.\n\n'
             'My development approach focuses on clean, maintainable code and well-structured architecture. I regularly work with patterns such as Clean Architecture and MVVM, and I have hands-on experience integrating Firebase services, real-time communication using MQTT, and REST APIs to build reliable, scalable applications.\n\n'
             'I enjoy collaborating with designers, backend developers, and QA teams to translate complex requirements into stable, user-friendly Flutter applications that perform well in real usage.',
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
