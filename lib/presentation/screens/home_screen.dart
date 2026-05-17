@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../app_routes.dart';
 import '../../core/utils/responsive.dart';
 import '../../data/data_sources/project_data.dart';
 import '../widgets/responsive_appbar.dart';
@@ -490,6 +491,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontWeight: FontWeight.w500,
                 ),
             textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          TextButton(
+            onPressed: () =>
+                Navigator.of(context).pushNamed(AppRoutes.ninaivuPrivacyPolicy),
+            child: const Text('Ninaivu Privacy Policy'),
           ),
         ],
       ),
