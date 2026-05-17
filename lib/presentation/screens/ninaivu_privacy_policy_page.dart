@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app_routes.dart';
 import '../../core/theme/app_colors.dart';
 
 class NinaivuPrivacyPolicyPage extends StatelessWidget {
@@ -92,8 +93,8 @@ class NinaivuPrivacyPolicyPage extends StatelessWidget {
                     const _PolicySection(
                       heading: '3. Data Storage',
                       paragraphs: [
-                        'Ninaivu may store data locally on the user’s device using local database storage. Some data may also be synced or stored using Firebase services, depending on the app features enabled.',
-                        'Local data remains on the user’s device unless sync or backup features are used.',
+                        'Ninaivu may store data locally on the user\'s device using local database storage. Some data may also be synced or stored using Firebase services, depending on the app features enabled.',
+                        'Local data remains on the user\'s device unless sync or backup features are used.',
                       ],
                     ),
                     const _PolicySection(
@@ -139,8 +140,9 @@ class NinaivuPrivacyPolicyPage extends StatelessWidget {
                         'For account-related data deletion or support requests, users can contact us using the email address below.',
                       ],
                     ),
+                    _PolicyLinkSection(borderColor: borderColor),
                     const _PolicySection(
-                      heading: '9. Children’s Privacy',
+                      heading: '9. Children\'s Privacy',
                       paragraphs: [
                         'Ninaivu is not intended for children. The app is designed for insurance agents and professional users. We do not knowingly collect personal information from children.',
                       ],
@@ -155,7 +157,7 @@ class NinaivuPrivacyPolicyPage extends StatelessWidget {
                       heading: '11. Contact Us',
                       paragraphs: [
                         'For privacy-related questions, support, or data deletion requests, contact:',
-                        'Email: devendiran03@gmail.com',
+                        'Email: devendiran.apps@gmail.com',
                       ],
                     ),
                     const SizedBox(height: 24),
@@ -219,7 +221,7 @@ class _PolicySection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '•',
+                      '-',
                       style: theme.textTheme.bodyLarge,
                     ),
                     const SizedBox(width: 10),
@@ -254,6 +256,62 @@ class _PolicyParagraph extends StatelessWidget {
     return Text(
       text,
       style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.75),
+    );
+  }
+}
+
+class _PolicyLinkSection extends StatelessWidget {
+  final Color borderColor;
+
+  const _PolicyLinkSection({required this.borderColor});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 28),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.03)
+              : Colors.black.withValues(alpha: 0.02),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: borderColor),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Account and Data Deletion',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'To request account and associated data deletion, visit:',
+              style: theme.textTheme.bodyLarge?.copyWith(height: 1.7),
+            ),
+            const SizedBox(height: 6),
+            TextButton(
+              onPressed: () => Navigator.of(context).pushNamed(
+                AppRoutes.ninaivuDeleteAccount,
+              ),
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                alignment: Alignment.centerLeft,
+              ),
+              child: const Text('/ninaivu/delete-account'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -498,6 +498,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.of(context).pushNamed(AppRoutes.ninaivuPrivacyPolicy),
             child: const Text('Ninaivu Privacy Policy'),
           ),
+          TextButton(
+            onPressed: () =>
+                Navigator.of(context).pushNamed(AppRoutes.ninaivuDeleteAccount),
+            child: const Text('Ninaivu Delete Account'),
+          ),
         ],
       ),
     );

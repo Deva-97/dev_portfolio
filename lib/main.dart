@@ -3,6 +3,7 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'app_routes.dart';
 import 'core/theme/app_theme.dart';
 import 'presentation/screens/home_screen.dart';
+import 'presentation/screens/ninaivu_delete_account_page.dart';
 import 'presentation/screens/ninaivu_privacy_policy_page.dart';
 import 'presentation/screens/splash_screen.dart';
 
@@ -45,16 +46,18 @@ class _PortfolioAppState extends State<PortfolioApp> {
       themeMode: _themeMode,
       themeAnimationDuration: const Duration(milliseconds: 400),
       themeAnimationCurve: Curves.easeInOut,
-      routes: {
-        AppRoutes.home: (context) => _showSplash
-            ? SplashScreen(onComplete: _onSplashComplete)
-            : HomeScreen(
-                onToggleTheme: toggleTheme,
+        routes: {
+          AppRoutes.home: (context) => _showSplash
+              ? SplashScreen(onComplete: _onSplashComplete)
+              : HomeScreen(
+                  onToggleTheme: toggleTheme,
                 themeMode: _themeMode,
               ),
-        AppRoutes.ninaivuPrivacyPolicy: (context) =>
-            const NinaivuPrivacyPolicyPage(),
-      },
+          AppRoutes.ninaivuPrivacyPolicy: (context) =>
+              const NinaivuPrivacyPolicyPage(),
+          AppRoutes.ninaivuDeleteAccount: (context) =>
+              const NinaivuDeleteAccountPage(),
+        },
       onUnknownRoute: (settings) => MaterialPageRoute(
         builder: (context) => _showSplash
             ? SplashScreen(onComplete: _onSplashComplete)
