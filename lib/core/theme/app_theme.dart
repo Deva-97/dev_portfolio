@@ -8,58 +8,66 @@ class AppTheme {
   static final baseTextTheme = TextTheme(
     displayLarge: GoogleFonts.poppins(
       fontSize: 56,
-      fontWeight: FontWeight.w700,
+      fontWeight: FontWeight.w800,
       letterSpacing: -1.5,
       height: 1.1,
     ),
     displayMedium: GoogleFonts.poppins(
       fontSize: 42,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w700,
       letterSpacing: -0.5,
     ),
     headlineLarge: GoogleFonts.poppins(
       fontSize: 34,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w700,
     ),
     headlineMedium: GoogleFonts.poppins(
       fontSize: 28,
       fontWeight: FontWeight.w600,
     ),
-    titleLarge: GoogleFonts.poppins(
+    headlineSmall: GoogleFonts.poppins(
       fontSize: 22,
+      fontWeight: FontWeight.w700,
+    ),
+    titleLarge: GoogleFonts.poppins(
+      fontSize: 20,
       fontWeight: FontWeight.w600,
     ),
     titleMedium: GoogleFonts.poppins(
-      fontSize: 18,
+      fontSize: 17,
       fontWeight: FontWeight.w600,
     ),
     bodyLarge: GoogleFonts.poppins(
-      fontSize: 18,
+      fontSize: 17,
       fontWeight: FontWeight.w400,
-      height: 1.7,
+      height: 1.75,
     ),
     bodyMedium: GoogleFonts.poppins(
-      fontSize: 16,
+      fontSize: 15,
       fontWeight: FontWeight.w400,
     ),
     labelLarge: GoogleFonts.poppins(
-      fontSize: 15,
+      fontSize: 14,
       fontWeight: FontWeight.w600,
+    ),
+    labelMedium: GoogleFonts.poppins(
+      fontSize: 13,
+      fontWeight: FontWeight.w500,
     ),
   );
 
   static final lightTheme = ThemeData(
     brightness: Brightness.light,
     useMaterial3: true,
-    primaryColor: AppColors.flutterDarkBlue,
-    scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+    primaryColor: AppColors.primary,
+    scaffoldBackgroundColor: AppColors.lightBg,
     appBarTheme: AppBarTheme(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.lightBg.withOpacity(0.92),
       elevation: 0,
       scrolledUnderElevation: 0,
-      iconTheme: const IconThemeData(color: AppColors.secondary),
+      iconTheme: const IconThemeData(color: AppColors.lightModeText),
       titleTextStyle: GoogleFonts.poppins(
-        color: AppColors.secondary,
+        color: AppColors.lightModeText,
         fontSize: 20,
         fontWeight: FontWeight.w700,
       ),
@@ -70,20 +78,20 @@ class AppTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.flutterDarkBlue,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
-        shadowColor: AppColors.flutterDarkBlue.withOpacity(0.4),
+        shadowColor: AppColors.primary.withOpacity(0.4),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
         textStyle: GoogleFonts.poppins(
-          fontSize: 17,
+          fontSize: 16,
           fontWeight: FontWeight.w600,
         ),
       ).copyWith(
         overlayColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.hovered)) {
-            return Colors.white.withOpacity(0.1);
+            return Colors.white.withOpacity(0.12);
           }
           return null;
         }),
@@ -91,18 +99,18 @@ class AppTheme {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.flutterDarkBlue,
-        side: const BorderSide(color: AppColors.flutterDarkBlue, width: 2),
+        foregroundColor: AppColors.primary,
+        side: const BorderSide(color: AppColors.primary, width: 1.5),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
         textStyle: GoogleFonts.poppins(
-          fontSize: 17,
+          fontSize: 16,
           fontWeight: FontWeight.w600,
         ),
       ).copyWith(
         overlayColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.hovered)) {
-            return AppColors.flutterDarkBlue.withOpacity(0.08);
+            return AppColors.primary.withOpacity(0.08);
           }
           return null;
         }),
@@ -117,15 +125,9 @@ class AppTheme {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ).copyWith(
-        overlayColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.hovered)) {
-            return AppColors.flutterDarkBlue.withOpacity(0.08);
-          }
-          return null;
-        }),
         foregroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.hovered)) {
-            return AppColors.flutterDarkBlue;
+            return AppColors.primary;
           }
           return AppColors.lightModeHint;
         }),
@@ -133,8 +135,8 @@ class AppTheme {
     ),
     cardTheme: CardThemeData(
       elevation: 0,
-      color: Colors.white,
-      margin: const EdgeInsets.symmetric(vertical: 12),
+      color: AppColors.cardBg,
+      margin: const EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: const BorderSide(color: AppColors.borderLight, width: 1),
@@ -143,29 +145,30 @@ class AppTheme {
     dividerColor: AppColors.borderLight,
     hintColor: AppColors.lightModeHint,
     textSelectionTheme: TextSelectionThemeData(
-      selectionColor: AppColors.flutterDarkBlue.withOpacity(0.4),
-      cursorColor: AppColors.flutterDarkBlue,
-      selectionHandleColor: AppColors.flutterDarkBlue,
+      selectionColor: AppColors.primary.withOpacity(0.3),
+      cursorColor: AppColors.primary,
+      selectionHandleColor: AppColors.primary,
     ),
     colorScheme: const ColorScheme.light(
-      primary: AppColors.flutterDarkBlue,
-      secondary: AppColors.accent,
-      surface: AppColors.surfaceLight,
+      primary: AppColors.primary,
+      secondary: AppColors.cyan,
+      tertiary: AppColors.amber,
+      surface: AppColors.lightSurface,
     ),
   );
 
   static final darkTheme = ThemeData(
     brightness: Brightness.dark,
     useMaterial3: true,
-    primaryColor: AppColors.flutterLightBlue,
+    primaryColor: AppColors.primaryLight,
     scaffoldBackgroundColor: AppColors.darkBg,
     appBarTheme: AppBarTheme(
-      backgroundColor: AppColors.darkBg,
+      backgroundColor: AppColors.darkBg.withOpacity(0.92),
       elevation: 0,
       scrolledUnderElevation: 0,
-      iconTheme: const IconThemeData(color: Colors.white),
+      iconTheme: const IconThemeData(color: AppColors.darkModeText),
       titleTextStyle: GoogleFonts.poppins(
-        color: Colors.white,
+        color: AppColors.darkModeText,
         fontSize: 20,
         fontWeight: FontWeight.w700,
       ),
@@ -176,14 +179,14 @@ class AppTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.flutterLightBlue,
+        backgroundColor: AppColors.primaryLight,
         foregroundColor: Colors.white,
         elevation: 0,
-        shadowColor: AppColors.flutterLightBlue.withOpacity(0.4),
+        shadowColor: AppColors.primary.withOpacity(0.5),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        padding: const EdgeInsets.symmetric(horizontal: 44, vertical: 22),
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
         textStyle: GoogleFonts.poppins(
-          fontSize: 17,
+          fontSize: 16,
           fontWeight: FontWeight.w600,
         ),
       ).copyWith(
@@ -197,18 +200,18 @@ class AppTheme {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.flutterLightBlue,
-        side: const BorderSide(color: AppColors.flutterLightBlue, width: 2),
+        foregroundColor: AppColors.primaryLight,
+        side: const BorderSide(color: AppColors.primaryLight, width: 1.5),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        padding: const EdgeInsets.symmetric(horizontal: 44, vertical: 22),
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
         textStyle: GoogleFonts.poppins(
-          fontSize: 17,
+          fontSize: 16,
           fontWeight: FontWeight.w600,
         ),
       ).copyWith(
         overlayColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.hovered)) {
-            return AppColors.flutterLightBlue.withOpacity(0.15);
+            return AppColors.primaryLight.withOpacity(0.15);
           }
           return null;
         }),
@@ -223,15 +226,9 @@ class AppTheme {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ).copyWith(
-        overlayColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.hovered)) {
-            return AppColors.flutterLightBlue.withOpacity(0.15);
-          }
-          return null;
-        }),
         foregroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.hovered)) {
-            return AppColors.flutterLightBlue;
+            return AppColors.primaryLight;
           }
           return AppColors.darkModeHint;
         }),
@@ -240,23 +237,24 @@ class AppTheme {
     cardTheme: CardThemeData(
       elevation: 0,
       color: AppColors.darkCardBg,
-      margin: const EdgeInsets.symmetric(vertical: 12),
+      margin: const EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: AppColors.borderDark, width: 1),
+        side: const BorderSide(color: AppColors.darkBorder, width: 1),
       ),
     ),
-    dividerColor: AppColors.borderDark,
+    dividerColor: AppColors.darkBorder,
     hintColor: AppColors.darkModeHint,
     textSelectionTheme: TextSelectionThemeData(
-      selectionColor: AppColors.flutterDarkBlue.withOpacity(0.5),
-      cursorColor: AppColors.flutterLightBlue,
-      selectionHandleColor: AppColors.flutterLightBlue,
+      selectionColor: AppColors.primary.withOpacity(0.4),
+      cursorColor: AppColors.primaryLight,
+      selectionHandleColor: AppColors.primaryLight,
     ),
     colorScheme: const ColorScheme.dark(
-      primary: AppColors.flutterLightBlue,
-      secondary: AppColors.accent,
-      surface: AppColors.surfaceDark,
+      primary: AppColors.primaryLight,
+      secondary: AppColors.cyan,
+      tertiary: AppColors.amber,
+      surface: AppColors.darkSurface,
     ),
   );
 }

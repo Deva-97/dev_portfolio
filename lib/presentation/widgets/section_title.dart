@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import 'animated_fade_in.dart';
@@ -8,19 +10,22 @@ class SectionTitle extends StatelessWidget {
   final Duration delay;
   final TextAlign textAlign;
   final bool useGradient;
+  final String? tag;
 
   const SectionTitle({
     super.key,
     required this.title,
     this.subtitle,
-    this.delay = const Duration(milliseconds: 200),
+    this.delay = const Duration(milliseconds: 100),
     this.textAlign = TextAlign.center,
     this.useGradient = false,
+    this.tag,
   });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isMobile = MediaQuery.of(context).size.width < 600;
 
     return AnimatedFadeIn(
       duration: const Duration(milliseconds: 600),
@@ -30,39 +35,69 @@ class SectionTitle extends StatelessWidget {
             ? CrossAxisAlignment.center
             : CrossAxisAlignment.start,
         children: [
-          // No gradient on section title text - solid color only
+          if (tag != null) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(isDark ? 0.15 : 0.08),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppColors.primary.withOpacity(0.25)),
+              ),
+              child: Text(
+                tag!,
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+          // Plain primary color — no ShaderMask (avoids white text artifacts on web)
           Text(
             title,
             style: Theme.of(context).textTheme.displayMedium?.copyWith(
                   fontWeight: FontWeight.w800,
-                  color: isDark ? Colors.white : AppColors.lightModeText,
+                  color: AppColors.primary,
+                  fontSize: isMobile ? 28 : null,
                 ),
             textAlign: textAlign,
           ),
-          const SizedBox(height: 16),
-          Container(
-            width: 80,
-            height: 4,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF0553B1), Color(0xFF54C5F8)],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          if (subtitle != null) const SizedBox(height: 20),
-          if (subtitle != null)
+          const SizedBox(height: 14),
+          if (textAlign == TextAlign.center)
+            const Center(child: _AccentBar())
+          else
+            const _AccentBar(),
+          if (subtitle != null) ...[
+            const SizedBox(height: 20),
             Text(
               subtitle!,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: Theme.of(context).hintColor,
-                    height: 1.6,
+                    height: 1.7,
                   ),
               textAlign: textAlign,
             ),
+          ],
         ],
+      ),
+    );
+  }
+}
+
+class _AccentBar extends StatelessWidget {
+  const _AccentBar();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 48,
+      height: 3,
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(4),
       ),
     );
   }

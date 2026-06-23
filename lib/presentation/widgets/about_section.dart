@@ -5,7 +5,6 @@ import '../../core/theme/app_colors.dart';
 import 'animated_fade_in.dart';
 import 'section_title.dart';
 
-/// Enhanced About Me section with animated content and visual elements
 class AboutSection extends StatefulWidget {
   final bool isMobile;
 
@@ -26,13 +25,13 @@ class _AboutSectionState extends State<AboutSection>
   void initState() {
     super.initState();
     _floatingController = AnimationController(
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 4),
       vsync: this,
     )..repeat(reverse: true);
 
-    // Pre-cache the about image for all views to avoid loading issues
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      precacheImage(const AssetImage('assets/images/dev_portfolio.png'), context);
+      precacheImage(
+          const AssetImage('assets/images/dev_portfolio.png'), context);
     });
   }
 
@@ -46,122 +45,81 @@ class _AboutSectionState extends State<AboutSection>
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth >= 600 && screenWidth < 900;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Title with underline
         const SectionTitle(title: 'About Me', useGradient: true),
-        const SizedBox(height: 40),
-
-        // Content with logo
+        const SizedBox(height: 48),
         if (widget.isMobile)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildAnimatedLogo(context, size: 260),
-              const SizedBox(height: 32),
-              _buildAboutText(context),
-              const SizedBox(height: 32),
-              _buildStatsRow(context, isMobile: true),
-            ],
-          )
+          _buildMobileLayout(context)
         else if (isTablet)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildAnimatedLogo(context, size: 280),
-              const SizedBox(height: 40),
-              _buildAboutText(context),
-              const SizedBox(height: 40),
-              _buildStatsRow(context, isMobile: false),
-            ],
-          )
+          _buildTabletLayout(context)
         else
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 300,
-                    height: 300,
-                    child: _buildAnimatedLogo(context, size: 300),
-                  ),
-                  const SizedBox(width: 48),
-                  Expanded(
-                    child: _buildAboutText(context),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 48),
-              // Stats Row
-              _buildStatsRow(context, isMobile: false),
-            ],
-          ),
+          _buildDesktopLayout(context),
+        const SizedBox(height: 48),
+        _buildStatsRow(context),
       ],
     );
   }
 
-  Widget _buildStatsRow(BuildContext context, {required bool isMobile}) {
-    final stats = [
-      {'title': 'Experience', 'value': '2+ Years', 'label': 'Professional Flutter Developer'},
-      {'title': 'App Delivery', 'value': 'Production Apps', 'label': 'Android · iOS · Tablet'},
-      {'title': 'Core Focus', 'value': 'Real-Time Systems', 'label': 'IoT · Automation · Enterprise Apps'},
-    ];
-
-    if (isMobile) {
-      return Column(
-        children: stats.map((stat) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: _StatCard(title: stat['title']!, value: stat['value']!, label: stat['label']!),
-          );
-        }).toList(),
-      );
-    }
-
-    return Row(
-      children: stats.map((stat) {
-        return Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: _StatCard(title: stat['title']!, value: stat['value']!, label: stat['label']!),
-          ),
-        );
-      }).toList(),
+  Widget _buildMobileLayout(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildPhoto(context, 240),
+        const SizedBox(height: 32),
+        _buildAboutText(context, TextAlign.center),
+      ],
     );
   }
 
-  Widget _buildAnimatedLogo(BuildContext context, {double size = 320}) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final borderRadius = size > 280 ? 28.0 : 24.0;
+  Widget _buildTabletLayout(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        _buildPhoto(context, 260),
+        const SizedBox(height: 36),
+        _buildAboutText(context, TextAlign.center),
+      ],
+    );
+  }
 
+  Widget _buildDesktopLayout(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildPhoto(context, 300),
+        const SizedBox(width: 56),
+        Expanded(child: _buildAboutText(context, TextAlign.start)),
+      ],
+    );
+  }
+
+  Widget _buildPhoto(BuildContext context, double size) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(borderRadius),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.15),
-            blurRadius: 30,
-            offset: const Offset(0, 15),
-            spreadRadius: 2,
-          ),
-          BoxShadow(
-            color: AppColors.primary.withOpacity(0.15),
+            color: AppColors.primary.withOpacity(0.2),
             blurRadius: 40,
             spreadRadius: 4,
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.4 : 0.12),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(borderRadius),
+        borderRadius: BorderRadius.circular(24),
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -169,11 +127,13 @@ class _AboutSectionState extends State<AboutSection>
               'assets/images/dev_portfolio.png',
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) => Container(
-                color: Colors.grey[200],
+                color: AppColors.darkSurface,
                 alignment: Alignment.center,
-                child: const Icon(Icons.broken_image, size: 48, color: Colors.grey),
+                child: const Icon(Icons.person,
+                    size: 60, color: AppColors.primary),
               ),
             ),
+            // Subtle gradient overlay
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -181,17 +141,18 @@ class _AboutSectionState extends State<AboutSection>
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withOpacity(0.4),
+                    AppColors.primary.withOpacity(0.15),
                   ],
+                  stops: const [0.6, 1.0],
                 ),
               ),
             ),
-            // Decorative border
+            // Border
             Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(borderRadius),
+                borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: AppColors.primary.withOpacity(0.25),
+                  color: AppColors.primary.withOpacity(0.2),
                   width: 1.5,
                 ),
               ),
@@ -202,45 +163,101 @@ class _AboutSectionState extends State<AboutSection>
     );
   }
 
-  Widget _buildAboutText(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isMobileOrTablet = screenWidth < 900;
-    
+  Widget _buildAboutText(BuildContext context, TextAlign align) {
+    final crossAlign = align == TextAlign.start
+        ? CrossAxisAlignment.start
+        : CrossAxisAlignment.center;
+
     return AnimatedFadeIn(
       delay: const Duration(milliseconds: 200),
       child: Column(
-        crossAxisAlignment: isMobileOrTablet ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+        crossAxisAlignment: crossAlign,
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'I\'m a Flutter Developer with over 3 years of professional experience building cross-platform mobile applications for Android, iOS, and tablet devices. I\'ve worked on real-world products including enterprise internal systems, smart home automation apps, and AI-powered mobile solutions used in production environments.\n\n'
-            'My development approach focuses on clean, maintainable code and well-structured architecture. I regularly work with patterns such as Clean Architecture and MVVM, and I have hands-on experience integrating Firebase services, real-time communication using MQTT, and REST APIs to build reliable, scalable applications.\n\n'
-            'I enjoy collaborating with designers, backend developers, and QA teams to translate complex requirements into stable, user-friendly Flutter applications that perform well in real usage.',
+            "I'm a Flutter Developer with 3+ years of hands-on experience building cross-platform mobile applications shipped to the Play Store and App Store. I've led end-to-end development across smart home automation, live streaming, enterprise management, and AI-powered apps — with a combined 10,500+ downloads.\n\n"
+            "My approach is grounded in clean, scalable architecture — Clean Architecture, MVVM, and well-chosen state management (GetX, Provider, BLoC). I've integrated real-time systems using MQTT and LiveKit, full Firebase suites, OpenAI APIs, and voice assistants including Siri (HomeKit) and Alexa.\n\n"
+            "I thrive in cross-functional Agile teams and take pride in writing maintainable Dart code that performs well in real-world production environments.",
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(context).hintColor.withOpacity(0.9),
-                  height: 1.8,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w400,
+                  color: Theme.of(context).hintColor,
+                  height: 1.85,
+                  fontSize: widget.isMobile ? 15 : 16,
                 ),
-            textAlign: isMobileOrTablet ? TextAlign.center : TextAlign.start,
+            textAlign: align,
           ),
         ],
       ),
     );
   }
 
+  Widget _buildStatsRow(BuildContext context) {
+    final stats = [
+      {
+        'value': '3+',
+        'label': 'Years Experience',
+        'sub': 'Professional Flutter Dev',
+        'icon': Icons.workspace_premium_outlined,
+      },
+      {
+        'value': '10,500+',
+        'label': 'App Downloads',
+        'sub': 'Combined across all apps',
+        'icon': Icons.download_outlined,
+      },
+      {
+        'value': '6',
+        'label': 'Production Apps',
+        'sub': 'Android · iOS · Web · Tablet',
+        'icon': Icons.rocket_launch_outlined,
+      },
+    ];
+
+    if (widget.isMobile) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: stats
+            .map((s) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _StatCard(
+                    value: s['value'] as String,
+                    label: s['label'] as String,
+                    sub: s['sub'] as String,
+                    icon: s['icon'] as IconData,
+                  ),
+                ))
+            .toList(),
+      );
+    }
+
+    return Row(
+      children: stats
+          .map((s) => Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: _StatCard(
+                    value: s['value'] as String,
+                    label: s['label'] as String,
+                    sub: s['sub'] as String,
+                    icon: s['icon'] as IconData,
+                  ),
+                ),
+              ))
+          .toList(),
+    );
+  }
 }
 
-/// Stat card widget with hover animation for About section
 class _StatCard extends StatefulWidget {
-  final String title;
   final String value;
   final String label;
+  final String sub;
+  final IconData icon;
 
   const _StatCard({
-    required this.title,
     required this.value,
     required this.label,
+    required this.sub,
+    required this.icon,
   });
 
   @override
@@ -249,122 +266,111 @@ class _StatCard extends StatefulWidget {
 
 class _StatCardState extends State<_StatCard>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  bool _isHovered = false;
+  late AnimationController _ctrl;
+  bool _hovered = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 150),
+    _ctrl = AnimationController(
+      duration: const Duration(milliseconds: 180),
       vsync: this,
     );
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _ctrl.dispose();
     super.dispose();
-  }
-
-  void _onHover(bool hovered) {
-    setState(() => _isHovered = hovered);
-    if (hovered) {
-      _controller.forward();
-    } else {
-      _controller.reverse();
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = Theme.of(context).primaryColor;
-    final screenWidth = MediaQuery.of(context).size.width;
-    final cardHeight = screenWidth < 600 ? 150.0 : 140.0;
-
     return MouseRegion(
-      onEnter: (_) => _onHover(true),
-      onExit: (_) => _onHover(false),
+      onEnter: (_) {
+        setState(() => _hovered = true);
+        _ctrl.forward();
+      },
+      onExit: (_) {
+        setState(() => _hovered = false);
+        _ctrl.reverse();
+      },
       child: AnimatedBuilder(
-        animation: _controller,
+        animation: _ctrl,
         builder: (context, child) {
-          final scale = 1.0 + (_controller.value * 0.03);
-          final translateY = -4 * _controller.value;
-
           return Transform.translate(
-            offset: Offset(0, translateY),
-            child: Transform.scale(
-              scale: scale,
-              child: Container(
-                height: cardHeight,
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? const Color(0xFF1E293B)
-                      : Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: _isHovered
-                        ? primaryColor.withOpacity(0.5)
-                        : (isDark
-                            ? const Color(0xFF334155)
-                            : const Color(0xFFE2E8F0)),
-                    width: 1,
+            offset: Offset(0, -4 * _ctrl.value),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.darkCardBg : AppColors.cardBg,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: _hovered
+                      ? AppColors.primary.withOpacity(0.4)
+                      : (isDark ? AppColors.darkBorder : AppColors.borderLight),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withOpacity(0.08 * _ctrl.value),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
                   ),
-                  boxShadow: [
+                  if (!isDark)
                     BoxShadow(
-                      color: primaryColor.withOpacity(0.1 * _controller.value),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
                     ),
-                    if (!isDark)
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
-                        blurRadius: 15,
-                        offset: const Offset(0, 5),
-                      ),
-                  ],
-                ),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        widget.title,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).hintColor,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 0.5,
-                            ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        widget.value,
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineSmall
-                            ?.copyWith(
-                              color: isDark ? AppColors.flutterLightBlue : AppColors.flutterDarkBlue,
-                              fontWeight: FontWeight.w800,
-                            ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        widget.label,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).hintColor,
-                              fontWeight: FontWeight.w400,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
+                ],
               ),
+              child: child,
             ),
           );
         },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(widget.icon, color: AppColors.primary, size: 20),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              widget.value,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w800,
+                  ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              widget.label,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              widget.sub,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).hintColor,
+                    fontSize: 11,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

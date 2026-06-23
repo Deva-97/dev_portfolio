@@ -29,7 +29,9 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screenshots = [widget.project.image];
+    final screenshots = [
+      if (widget.project.image != null) widget.project.image!,
+    ];
     return Scaffold(
       appBar: AppBar(title: Text(widget.project.title)),
       body: Padding(

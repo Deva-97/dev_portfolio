@@ -46,18 +46,18 @@ class _PortfolioAppState extends State<PortfolioApp> {
       themeMode: _themeMode,
       themeAnimationDuration: const Duration(milliseconds: 400),
       themeAnimationCurve: Curves.easeInOut,
-        routes: {
-          AppRoutes.home: (context) => _showSplash
-              ? SplashScreen(onComplete: _onSplashComplete)
-              : HomeScreen(
-                  onToggleTheme: toggleTheme,
+      routes: {
+        AppRoutes.home: (context) => _showSplash
+            ? SplashScreen(onComplete: _onSplashComplete)
+            : HomeScreen(
+                onToggleTheme: toggleTheme,
                 themeMode: _themeMode,
               ),
-          AppRoutes.ninaivuPrivacyPolicy: (context) =>
-              const NinaivuPrivacyPolicyPage(),
-          AppRoutes.ninaivuDeleteAccount: (context) =>
-              const NinaivuDeleteAccountPage(),
-        },
+        AppRoutes.ninaivuPrivacyPolicy: (context) =>
+            const NinaivuPrivacyPolicyPage(),
+        AppRoutes.ninaivuDeleteAccount: (context) =>
+            const NinaivuDeleteAccountPage(),
+      },
       onUnknownRoute: (settings) => MaterialPageRoute(
         builder: (context) => _showSplash
             ? SplashScreen(onComplete: _onSplashComplete)

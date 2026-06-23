@@ -4,10 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:math' as math;
 import '../../core/theme/app_colors.dart';
-import '../../core/utils/responsive.dart';
 import 'animated_fade_in.dart';
 
-/// Hero section for modern portfolio - matching reference design
 class HeroSection extends StatefulWidget {
   final String name;
   final String title;
@@ -31,18 +29,18 @@ class HeroSection extends StatefulWidget {
 class _HeroSectionState extends State<HeroSection>
     with TickerProviderStateMixin {
   late AnimationController _floatingController;
-  late AnimationController _glowController;
+  late AnimationController _orbController;
 
   @override
   void initState() {
     super.initState();
     _floatingController = AnimationController(
-      duration: const Duration(milliseconds: 4000),
+      duration: const Duration(milliseconds: 5000),
       vsync: this,
     )..repeat(reverse: true);
 
-    _glowController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
+    _orbController = AnimationController(
+      duration: const Duration(milliseconds: 8000),
       vsync: this,
     )..repeat(reverse: true);
   }
@@ -50,7 +48,7 @@ class _HeroSectionState extends State<HeroSection>
   @override
   void dispose() {
     _floatingController.dispose();
-    _glowController.dispose();
+    _orbController.dispose();
     super.dispose();
   }
 
@@ -58,337 +56,643 @@ class _HeroSectionState extends State<HeroSection>
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDesktop = MediaQuery.of(context).size.width >= 900;
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 80),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final availableWidth =
-              constraints.maxWidth.isFinite ? constraints.maxWidth : 800.0;
-          final contentMaxWidth =
-              isMobile ? availableWidth : math.min(availableWidth * 0.65, 750);
-          final boundedContentWidth =
-              contentMaxWidth.clamp(0.0, availableWidth).toDouble();
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 48 : 88),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // Clip orbs to prevent horizontal scroll overflow
+          Positioned.fill(
+            child: ClipRect(child: _buildBackgroundOrbs(isDark)),
+          ),
+          _buildContent(context, isMobile, isDesktop, isDark),
+        ],
+      ),
+    );
+  }
 
-          final showSideLogo = availableWidth >= 900;
-          final logoSize = showSideLogo
-              ? math.min(420.0, availableWidth * 0.42)
-              : math.min(280.0, availableWidth * 0.55);
-
-          Widget buildLogo() {
-            return AnimatedBuilder(
-              animation: _floatingController,
-              builder: (context, child) {
-                final v = _floatingController.value;
-                final floatY = math.sin(v * math.pi) * 12;
-
-                return Transform.translate(
-                  offset: Offset(0, floatY),
-                  child: RepaintBoundary(
-                  child: Container(
-                    width: logoSize,
-                    height: logoSize,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(32),
-                      border: Border.all(
-                        color: Theme.of(context).dividerColor.withOpacity(0.06),
-                        width: 0.8,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF54C5F8).withOpacity(0.005),
-                          blurRadius: 2,
-                          offset: const Offset(0, 1),
-                        ),
+  Widget _buildBackgroundOrbs(bool isDark) {
+    return AnimatedBuilder(
+      animation: _orbController,
+      builder: (context, _) {
+        final v = _orbController.value;
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned(
+              top: -80,
+              right: -60,
+              child: Transform.translate(
+                offset: Offset(
+                    math.sin(v * math.pi) * 20, math.cos(v * math.pi) * 15),
+                child: Container(
+                  width: 360,
+                  height: 360,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        AppColors.primary.withOpacity(isDark ? 0.10 : 0.07),
+                        AppColors.primary.withOpacity(0),
                       ],
                     ),
-                    child: Image.asset(
-                      'assets/images/logo.png',
-                      fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: -60,
+              left: -80,
+              child: Transform.translate(
+                offset: Offset(
+                    math.cos(v * math.pi) * 15, math.sin(v * math.pi) * 20),
+                child: Container(
+                  width: 360,
+                  height: 360,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        AppColors.primary.withOpacity(isDark ? 0.10 : 0.06),
+                        AppColors.primary.withOpacity(0),
+                      ],
                     ),
                   ),
                 ),
-                );
-              },
-            );
-          }
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-          final content = ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: boundedContentWidth),
-            child: Column(
-              crossAxisAlignment: showSideLogo ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+  Widget _buildContent(
+    BuildContext context,
+    bool isMobile,
+    bool isDesktop,
+    bool isDark,
+  ) {
+    final textContent = _buildTextContent(context, isMobile, isDesktop, isDark);
+    final logoWidget = _buildAnimatedLogo(context, isMobile, isDesktop);
+
+    if (isDesktop) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(flex: 55, child: textContent),
+          const SizedBox(width: 48),
+          Expanded(flex: 45, child: Center(child: logoWidget)),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        logoWidget,
+        const SizedBox(height: 40),
+        textContent,
+      ],
+    );
+  }
+
+  Widget _buildTextContent(
+    BuildContext context,
+    bool isMobile,
+    bool isDesktop,
+    bool isDark,
+  ) {
+    final crossAlign =
+        isDesktop ? CrossAxisAlignment.start : CrossAxisAlignment.center;
+    final textAlign = isDesktop ? TextAlign.start : TextAlign.center;
+    final wrapAlign = isDesktop ? WrapAlignment.start : WrapAlignment.center;
+
+    return Column(
+      crossAxisAlignment: crossAlign,
+      children: [
+        // Role badge
+        AnimatedFadeIn(
+          delay: const Duration(milliseconds: 50),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(isDark ? 0.15 : 0.08),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                // Greeting and Name
-                AnimatedFadeIn(
-                  delay: const Duration(milliseconds: 100),
-                  duration: const Duration(milliseconds: 600),
-                  child: Column(
-                    crossAxisAlignment: showSideLogo ? CrossAxisAlignment.start : CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Hello, I\'m',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: isDark ? AppColors.flutterLightBlue : AppColors.flutterDarkBlue,
-                              fontWeight: FontWeight.w400,
-                            ),
-                        textAlign: showSideLogo ? TextAlign.start : TextAlign.center,
-                      ),
-                      const SizedBox(height: 8),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: showSideLogo ? Alignment.centerLeft : Alignment.center,
-                        child: Text(
-                          widget.name,
-                          style: Theme.of(context)
-                              .textTheme
-                              .displayLarge
-                              ?.copyWith(
-                                color: isDark ? Colors.white : const Color(0xFF0F172A),
-                                fontSize: isMobile ? 32 : (availableWidth > 900 ? 56 : 42),
-                                fontWeight: FontWeight.w800,
-                              ),
-                          textAlign: showSideLogo ? TextAlign.start : TextAlign.center,
-                        ),
+                Container(
+                  width: 7,
+                  height: 7,
+                  decoration: BoxDecoration(
+                    color: AppColors.available,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.available.withOpacity(0.6),
+                        blurRadius: 4,
+                        spreadRadius: 1,
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
-
-                // Flutter Developer Badge - below name, plain blue text
-                AnimatedFadeIn(
-                  delay: const Duration(milliseconds: 200),
-                  duration: const Duration(milliseconds: 600),
-                  child: Text(
-                    'Flutter Developer',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          color: isDark 
-                              ? AppColors.flutterLightBlue 
-                              : AppColors.flutterDarkBlue,
-                          fontWeight: FontWeight.w700,
-                          fontSize: isMobile ? 20 : 28,
-                        ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Subtitle description
-                AnimatedFadeIn(
-                  delay: const Duration(milliseconds: 250),
-                  duration: const Duration(milliseconds: 600),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: isMobile ? double.infinity : 520,
-                    ),
-                    child: Text(
-                      widget.subtitle,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Theme.of(context).hintColor,
-                            height: 1.8,
-                            // Match About Me description font size on mobile
-                            fontSize: isMobile ? 17 : 18,
-                          ),
-                      textAlign: showSideLogo ? TextAlign.start : TextAlign.center,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 36),
-
-                // CTA Buttons with enhanced hover
-                AnimatedFadeIn(
-                  delay: const Duration(milliseconds: 300),
-                  duration: const Duration(milliseconds: 600),
-                  child: Wrap(
-                    spacing: 16,
-                    runSpacing: 12,
-                    children: [
-                      _HoverElevatedButton(
-                        onPressed: widget.onViewWork,
-                        label: 'View My Work',
-                      ),
-                      _HoverOutlinedButton(
-                        onPressed: widget.onGetInTouch,
-                        label: 'Get In Touch',
-                      ),
-                    ],
+                const SizedBox(width: 8),
+                Text(
+                  'Flutter Developer · 3+ Years',
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontSize: isMobile ? 12 : 13,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.3,
                   ),
                 ),
               ],
             ),
-          );
+          ),
+        ),
+        const SizedBox(height: 20),
 
-          if (showSideLogo) {
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(child: content),
-                const SizedBox(width: 60),
-                SizedBox(
-                  width: logoSize + 40,
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: buildLogo(),
-                  ),
-                ),
-              ],
-            );
-          }
-
-          // For mobile/tablet: center everything
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+        // Greeting + Name — plain primary color, no ShaderMask
+        AnimatedFadeIn(
+          delay: const Duration(milliseconds: 120),
+          child: Column(
+            crossAxisAlignment: crossAlign,
             children: [
-              buildLogo(),
-              const SizedBox(height: 40),
-              content,
+              Text(
+                "Hello, I'm",
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Theme.of(context).hintColor,
+                      fontWeight: FontWeight.w400,
+                      fontSize: isMobile ? 16 : 20,
+                    ),
+                textAlign: textAlign,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                widget.name,
+                style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                      color: AppColors.primary,
+                      fontSize: isMobile ? 32 : (isDesktop ? 54 : 44),
+                      fontWeight: FontWeight.w800,
+                      height: 1.1,
+                    ),
+                textAlign: textAlign,
+              ),
             ],
-          );
-        },
-      ),
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // Subtitle
+        AnimatedFadeIn(
+          delay: const Duration(milliseconds: 200),
+          child: ConstrainedBox(
+            constraints:
+                BoxConstraints(maxWidth: isMobile ? double.infinity : 520),
+            child: Text(
+              widget.subtitle,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).hintColor,
+                    height: 1.8,
+                    fontSize: isMobile ? 15 : 17,
+                  ),
+              textAlign: textAlign,
+            ),
+          ),
+        ),
+        const SizedBox(height: 32),
+
+        // CTA Buttons
+        AnimatedFadeIn(
+          delay: const Duration(milliseconds: 280),
+          child: Wrap(
+            spacing: 16,
+            runSpacing: 12,
+            alignment: wrapAlign,
+            children: [
+              _PrimaryButton(
+                label: 'View My Work',
+                onPressed: widget.onViewWork,
+                isMobile: isMobile,
+              ),
+              _OutlineButton(
+                label: 'Get In Touch',
+                onPressed: widget.onGetInTouch,
+                isMobile: isMobile,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 40),
+
+        // Tech strip
+        AnimatedFadeIn(
+          delay: const Duration(milliseconds: 360),
+          child: _TechStrip(
+            tags: const [
+              'Flutter',
+              'Dart',
+              'GetX',
+              'Firebase',
+              'MQTT',
+              'REST APIs',
+              'Clean Arch',
+              'MVVM',
+            ],
+            align: wrapAlign,
+          ),
+        ),
+      ],
     );
   }
-}
 
-/// Elevated button with hover animation
-class _HoverElevatedButton extends StatefulWidget {
-  final VoidCallback? onPressed;
-  final String label;
+  Widget _buildAnimatedLogo(
+      BuildContext context, bool isMobile, bool isDesktop) {
+    final size = isDesktop ? 300.0 : (isMobile ? 200.0 : 260.0);
 
-  const _HoverElevatedButton({
-    this.onPressed,
-    required this.label,
-  });
-
-  @override
-  State<_HoverElevatedButton> createState() => _HoverElevatedButtonState();
-}
-
-class _HoverElevatedButtonState extends State<_HoverElevatedButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _elevationAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.02).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
-    _elevationAnimation = Tween<double>(begin: 0, end: 8).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 600;
-    return MouseRegion(
-      onEnter: (_) => _controller.forward(),
-      onExit: (_) => _controller.reverse(),
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: Container(
-              width: isMobile ? double.infinity : null,
+    return AnimatedBuilder(
+      animation: _floatingController,
+      builder: (context, child) {
+        final floatY = math.sin(_floatingController.value * math.pi) * 14;
+        return Transform.translate(offset: Offset(0, floatY), child: child);
+      },
+      child: RepaintBoundary(
+        child: Stack(
+          alignment: Alignment.center,
+          clipBehavior: Clip.none,
+          children: [
+            // Simple border ring
+            Container(
+              width: size + 20,
+              height: size + 20,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.primary.withOpacity(0.3),
+                  width: 2,
+                ),
+              ),
+            ),
+            // BG separator
+            Container(
+              width: size + 10,
+              height: size + 10,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Theme.of(context).scaffoldBackgroundColor,
+              ),
+            ),
+            // Photo
+            Container(
+              width: size,
+              height: size,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary
-                        .withOpacity(0.3 * _controller.value),
-                    blurRadius: _elevationAnimation.value * 2,
-                    offset: Offset(0, _elevationAnimation.value / 2),
+                    color: AppColors.primary.withOpacity(0.2),
+                    blurRadius: 40,
+                    spreadRadius: 5,
                   ),
                 ],
               ),
-              child: ElevatedButton(
-                onPressed: widget.onPressed,
-                child: Text(widget.label),
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    color: AppColors.darkSurface,
+                    child: const Icon(Icons.person,
+                        size: 80, color: AppColors.primary),
+                  ),
+                ),
               ),
             ),
-          );
-        },
+            // Floating stat chips (desktop only)
+            if (isDesktop) ...[
+              const Positioned(
+                top: 12,
+                right: -12,
+                child: _FloatingChip(
+                  icon: Icons.download_rounded,
+                  label: '10,500+',
+                  sublabel: 'Downloads',
+                ),
+              ),
+              const Positioned(
+                bottom: 32,
+                left: -24,
+                child: _FloatingChip(
+                  icon: Icons.apps_rounded,
+                  label: '6 Apps',
+                  sublabel: 'Production',
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
 }
 
-/// Outlined button with hover animation
-class _HoverOutlinedButton extends StatefulWidget {
-  final VoidCallback? onPressed;
-  final String label;
+// ---- Supporting widgets ----
 
-  const _HoverOutlinedButton({
-    this.onPressed,
+class _PrimaryButton extends StatefulWidget {
+  final String label;
+  final VoidCallback? onPressed;
+  final bool isMobile;
+
+  const _PrimaryButton({
     required this.label,
+    this.onPressed,
+    required this.isMobile,
   });
 
   @override
-  State<_HoverOutlinedButton> createState() => _HoverOutlinedButtonState();
+  State<_PrimaryButton> createState() => _PrimaryButtonState();
 }
 
-class _HoverOutlinedButtonState extends State<_HoverOutlinedButton>
+class _PrimaryButtonState extends State<_PrimaryButton>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
+  late AnimationController _ctrl;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    _ctrl = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.02).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _ctrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 600;
     return MouseRegion(
-      onEnter: (_) => _controller.forward(),
-      onExit: (_) => _controller.reverse(),
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: SizedBox(
-              width: isMobile ? double.infinity : null,
-              child: OutlinedButton(
-                onPressed: widget.onPressed,
-                child: Text(widget.label),
+      onEnter: (_) => _ctrl.forward(),
+      onExit: (_) => _ctrl.reverse(),
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: widget.onPressed,
+        child: AnimatedBuilder(
+          animation: _ctrl,
+          builder: (context, _) {
+            return Transform.scale(
+              scale: 1.0 + _ctrl.value * 0.02,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: widget.isMobile ? double.infinity : null,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                decoration: BoxDecoration(
+                  color: Color.lerp(AppColors.primary, AppColors.primaryDark,
+                      _ctrl.value * 0.3),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary
+                          .withOpacity(0.3 + _ctrl.value * 0.15),
+                      blurRadius: 16 + _ctrl.value * 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Text(
+                    widget.label,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
 }
 
-/// Skill card widget with hover effects
+class _OutlineButton extends StatefulWidget {
+  final String label;
+  final VoidCallback? onPressed;
+  final bool isMobile;
+
+  const _OutlineButton({
+    required this.label,
+    this.onPressed,
+    required this.isMobile,
+  });
+
+  @override
+  State<_OutlineButton> createState() => _OutlineButtonState();
+}
+
+class _OutlineButtonState extends State<_OutlineButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  bool _hovered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return MouseRegion(
+      onEnter: (_) {
+        setState(() => _hovered = true);
+        _ctrl.forward();
+      },
+      onExit: (_) {
+        setState(() => _hovered = false);
+        _ctrl.reverse();
+      },
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: widget.onPressed,
+        child: AnimatedBuilder(
+          animation: _ctrl,
+          builder: (context, _) {
+            return Transform.scale(
+              scale: 1.0 + _ctrl.value * 0.02,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: widget.isMobile ? double.infinity : null,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                decoration: BoxDecoration(
+                  color: _hovered
+                      ? AppColors.primary.withOpacity(0.1)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: _hovered
+                        ? AppColors.primary
+                        : (isDark
+                            ? AppColors.darkBorder
+                            : AppColors.borderLight),
+                    width: 1.5,
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    widget.label,
+                    style: TextStyle(
+                      color: _hovered
+                          ? AppColors.primary
+                          : Theme.of(context).hintColor,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _TechStrip extends StatelessWidget {
+  final List<String> tags;
+  final WrapAlignment align;
+
+  const _TechStrip({required this.tags, required this.align});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      alignment: align,
+      children: tags.map((tag) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isDark ? AppColors.darkBorder : AppColors.borderLight,
+            ),
+          ),
+          child: Text(
+            tag,
+            style: TextStyle(
+              color: Theme.of(context).hintColor,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _FloatingChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String sublabel;
+
+  const _FloatingChip({
+    required this.icon,
+    required this.label,
+    required this.sublabel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCardBg : AppColors.cardBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.borderLight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.30 : 0.10),
+            blurRadius: 20,
+            spreadRadius: 0,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 14, color: AppColors.primary),
+          ),
+          const SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  color:
+                      isDark ? AppColors.darkModeText : AppColors.lightModeText,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                  height: 1.2,
+                ),
+              ),
+              Text(
+                sublabel,
+                style: TextStyle(
+                  color: Theme.of(context).hintColor,
+                  fontSize: 11,
+                  height: 1.2,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Skill card used in the Skills section
 class SkillCard extends StatefulWidget {
   final IconData icon;
   final String title;
@@ -439,6 +743,12 @@ class _SkillCardState extends State<SkillCard>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth <= 600;
+    final isDesktop = screenWidth > 900;
+    final iconSize = isDesktop ? 48.0 : (isMobile ? 36.0 : 44.0);
+    final titleFontSize = isDesktop ? 15.0 : (isMobile ? 13.0 : 14.0);
+    final descFontSize = isDesktop ? 13.0 : (isMobile ? 11.0 : 12.0);
 
     return RepaintBoundary(
       child: MouseRegion(
@@ -447,339 +757,82 @@ class _SkillCardState extends State<SkillCard>
         child: AnimatedBuilder(
           animation: _hoverController,
           builder: (context, child) {
-            // translateY effect like reference: transform: translateY(0px) -> translateY(-8px)
-            final translateY = -8.0 * _hoverController.value;
-            final screenWidth = MediaQuery.of(context).size.width;
-            final isMobileOuter = screenWidth <= 600;
-            // Reduce internal padding for mobile
-            final contentPadding = EdgeInsets.symmetric(
-              horizontal: isMobileOuter ? 8.0 : 16.0,
-              vertical: isMobileOuter ? 8.0 : 16.0,
-            );
-
             return Transform.translate(
-              offset: Offset(0, translateY),
-              child: Container(
+              offset: Offset(0, -6 * _hoverController.value),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isMobile ? 8 : 14,
+                  vertical: isMobile ? 10 : 16,
+                ),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
+                  color: isDark ? AppColors.darkCardBg : AppColors.cardBg,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: _isHovered
+                        ? AppColors.primary.withOpacity(0.4)
+                        : (isDark
+                            ? AppColors.darkBorder
+                            : AppColors.borderLight),
+                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.12 * _hoverController.value),
+                      color: AppColors.primary
+                          .withOpacity(0.10 * _hoverController.value),
                       blurRadius: 16,
-                      offset: const Offset(0, 8),
+                      offset: const Offset(0, 6),
                     ),
                     BoxShadow(
-                      color: (isDark ? Colors.black : Colors.black12)
-                          .withOpacity(isDark ? 0.28 : 0.05),
+                      color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
                     ),
                   ],
                 ),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: contentPadding,
-                decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkCardBg : Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: _isHovered
-                        ? AppColors.primary.withOpacity(0.4)
-                        : (isDark ? AppColors.borderDark : AppColors.borderLight),
-                    width: 1,
-                  ),
-                ),
-                child: Builder(
-                  builder: (context) {
-                    final screenWidth = MediaQuery.of(context).size.width;
-                    // Responsive sizing: desktop > 900, tablet 600-900, mobile < 600
-                    final isDesktop = screenWidth > 900;
-                    final isTablet = screenWidth > 600 && screenWidth <= 900;
-                    final isMobile = screenWidth <= 600;
-                    
-                    // Icon size - slightly reduced on mobile so two-column layout fits
-                    final iconSize = isDesktop ? 56.0 : (isTablet ? 52.0 : 44.0);
-                    // Title font size - slightly reduced on mobile so text fits two columns
-                    final titleFontSize = isDesktop ? 17.0 : (isTablet ? 16.0 : 14.0);
-                    // Description font size - slightly reduced on mobile
-                    final descFontSize = isDesktop ? 14.0 : (isTablet ? 13.0 : 11.0);
-
-                    // Responsive spacing - tighter for mobile
-                    // Add more vertical gap below and between cards for mobile
-                    final topSpacing = isMobile ? 10.0 : 16.0;
-                    final iconTitleSpacing = isMobile ? 10.0 : 12.0;
-                    final titleDescSpacing = isMobile ? 8.0 : 8.0;
-                    final bottomSpacing = isMobile ? 14.0 : 12.0;
-
-                    
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(height: topSpacing),
-                        // Skill icon - responsive
-                        widget.assetPath != null
-                            ? widget.assetPath!.endsWith('.svg')
-                                ? SvgPicture.asset(
-                                    widget.assetPath!,
-                                    width: iconSize,
-                                    height: iconSize,
-                                  )
-                                : Image.asset(
-                                    widget.assetPath!,
-                                    width: iconSize,
-                                    height: iconSize,
-                                    fit: BoxFit.contain,
-                                  )
-                            : Icon(
-                                widget.icon,
-                                color: AppColors.primary,
-                                size: iconSize,
-                              ),
-                        SizedBox(height: iconTitleSpacing),
-                        // Title - responsive, no ellipsis
-                        Text(
-                          widget.title,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w700,
-                                fontSize: titleFontSize,
-                              ),
-                          textAlign: TextAlign.center,
-                        ),
-                        SizedBox(height: titleDescSpacing),
-                        // Description - responsive, no ellipsis
-                        Text(
-                          widget.description,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: isDark 
-                                    ? AppColors.darkModeHint 
-                                    : const Color(0xFF64748B),
-                                height: 1.4,
-                                fontSize: descFontSize,
-                              ),
-                          textAlign: TextAlign.center,
-                        ),
-                        SizedBox(height: bottomSpacing),
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ),
-          );
-          
-        },
-      ),
-      ),
-    );
-  }
-}
-
-/// Featured project card with enhanced hover
-class FeaturedProjectCard extends StatefulWidget {
-  final String image;
-  final String title;
-  final String description;
-  final List<String> tech;
-  final VoidCallback? onTap;
-
-  const FeaturedProjectCard({
-    super.key,
-    required this.image,
-    required this.title,
-    required this.description,
-    required this.tech,
-    this.onTap,
-  });
-
-  @override
-  State<FeaturedProjectCard> createState() => _FeaturedProjectCardState();
-}
-
-class _FeaturedProjectCardState extends State<FeaturedProjectCard>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _hoverController;
-  bool _isHovered = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _hoverController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-  }
-
-  @override
-  void dispose() {
-    _hoverController.dispose();
-    super.dispose();
-  }
-
-  void _onHover(bool isHovered) {
-    setState(() => _isHovered = isHovered);
-    if (isHovered) {
-      _hoverController.forward();
-    } else {
-      _hoverController.reverse();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return MouseRegion(
-      onEnter: (_) => _onHover(true),
-      onExit: (_) => _onHover(false),
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedBuilder(
-          animation: _hoverController,
-          builder: (context, child) {
-            final scale = 1.0 + (_hoverController.value * 0.02);
-            final translateY = -8 * _hoverController.value;
-
-            return Transform.translate(
-              offset: Offset(0, translateY),
-              child: Transform.scale(
-                scale: scale,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary
-                            .withOpacity(0.15 * _hoverController.value),
-                        blurRadius: 30,
-                        offset: const Offset(0, 15),
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withOpacity(isDark ? 0.3 : 0.08),
-                        blurRadius: 25,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    decoration: BoxDecoration(
-                      color: isDark ? AppColors.darkCardBg : Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: _isHovered
-                            ? AppColors.primary.withOpacity(0.5)
-                            : (isDark
-                                ? AppColors.borderDark
-                                : AppColors.borderLight),
-                        width: _isHovered ? 2 : 1,
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Image with overlay on hover
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(14),
-                            child: Stack(
-                              children: [
-                                Image.asset(
-                                  widget.image,
-                                  width: double.infinity,
-                                  height: 200,
-                                  fit: BoxFit.cover,
-                                ),
-                                // Gradient overlay on hover
-                                AnimatedOpacity(
-                                  duration: const Duration(milliseconds: 300),
-                                  opacity: _isHovered ? 1 : 0,
-                                  child: Container(
-                                    width: double.infinity,
-                                    height: 200,
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        colors: [
-                                          Colors.transparent,
-                                          AppColors.primary.withOpacity(0.3),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          Text(
-                            widget.title,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  color: _isHovered ? AppColors.primary : null,
-                                  // Larger title font size on mobile
-                                  fontSize: Responsive.isMobile(context) ? 20 : null,
-                                ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            widget.description,
-                            style:
-                                Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                      color: Theme.of(context).hintColor,
-                                      height: 1.6,
-                                      // Larger description font size on mobile
-                                      fontSize: Responsive.isMobile(context) ? 16 : null,
-                                    ),
-                          ),
-                          const SizedBox(height: 20),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: widget.tech
-                                .map((t) => Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 14,
-                                        vertical: 8,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: isDark 
-                                            ? AppColors.primary.withOpacity(0.15) 
-                                            : Colors.white,
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                          color: AppColors.primary
-                                              .withOpacity(0.3),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        t,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelLarge
-                                            ?.copyWith(
-                                              color: AppColors.primary,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                      ),
-                                    ))
-                                .toList(),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+                child: child,
               ),
             );
           },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              widget.assetPath != null
+                  ? widget.assetPath!.endsWith('.svg')
+                      ? SvgPicture.asset(
+                          widget.assetPath!,
+                          width: iconSize,
+                          height: iconSize,
+                        )
+                      : Image.asset(
+                          widget.assetPath!,
+                          width: iconSize,
+                          height: iconSize,
+                          fit: BoxFit.contain,
+                        )
+                  : Icon(widget.icon, color: AppColors.primary, size: iconSize),
+              SizedBox(height: isMobile ? 8 : 12),
+              Text(
+                widget.title,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      fontSize: titleFontSize,
+                    ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: isMobile ? 6 : 8),
+              Text(
+                widget.description,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).hintColor,
+                      height: 1.4,
+                      fontSize: descFontSize,
+                    ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );

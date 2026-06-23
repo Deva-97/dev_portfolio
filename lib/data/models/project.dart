@@ -4,7 +4,8 @@ class Project {
   final List<String> tech;
   final String? playStore;
   final String? appStore;
-  final String image;
+  final String? image;
+  final String? category;
 
   Project({
     required this.title,
@@ -12,6 +13,7 @@ class Project {
     required this.tech,
     this.playStore,
     this.appStore,
-    required this.image,
+    this.image,
+    this.category,
   });
 }

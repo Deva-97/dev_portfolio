@@ -12,6 +12,7 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   final VoidCallback? onAboutTap;
   final VoidCallback? onExperienceTap;
+  final VoidCallback? onSkillsTap;
   final VoidCallback? onProjectsTap;
   final VoidCallback? onContactTap;
 
@@ -22,23 +23,21 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.showName = false,
     this.onAboutTap,
     this.onExperienceTap,
+    this.onSkillsTap,
     this.onProjectsTap,
     this.onContactTap,
   });
 
   @override
-  Size get preferredSize => const Size.fromHeight(70);
+  Size get preferredSize => const Size.fromHeight(68);
 
   @override
   Widget build(BuildContext context) {
     final isDesktop = Responsive.isDesktop(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final icon =
-        themeMode == ThemeMode.dark ? Icons.dark_mode : Icons.light_mode;
-
     final themeIcon = _HoverIconButton(
-      icon: icon,
+      icon: themeMode == ThemeMode.dark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
       onTap: onToggleTheme,
       tooltip: 'Toggle theme',
     );
@@ -55,16 +54,17 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
             children: [
               SvgPicture.asset(
                 'assets/images/flutter logo.svg',
-                width: Responsive.isMobile(context) ? 20 : 28,
-                height: Responsive.isMobile(context) ? 20 : 28,
+                width: Responsive.isMobile(context) ? 18 : 24,
+                height: Responsive.isMobile(context) ? 18 : 24,
+                colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
               ),
               const SizedBox(width: 10),
               Text(
                 'Devendiran Thiyagarajan',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: isDark ? AppColors.flutterLightBlue : AppColors.flutterDarkBlue,
+                      color: isDark ? AppColors.darkModeText : AppColors.lightModeText,
                       fontWeight: FontWeight.w700,
-                      fontSize: Responsive.isMobile(context) ? 18 : null,
+                      fontSize: Responsive.isMobile(context) ? 16 : 18,
                     ),
               ),
             ],
@@ -80,10 +80,11 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
         centerTitle: false,
         actions: [
           _HoverNavButton(label: 'About', onTap: onAboutTap),
-          _HoverNavButton(label: 'Skills', onTap: onExperienceTap),
+          _HoverNavButton(label: 'Experience', onTap: onExperienceTap),
+          _HoverNavButton(label: 'Skills', onTap: onSkillsTap),
           _HoverNavButton(label: 'Projects', onTap: onProjectsTap),
           _HoverNavButton(label: 'Contact', onTap: onContactTap),
-          const SizedBox(width: 16),
+          const SizedBox(width: 8),
           themeIcon,
           const SizedBox(width: 16),
         ],
@@ -104,6 +105,9 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
               case 'experience':
                 onExperienceTap?.call();
                 break;
+              case 'skills':
+                onSkillsTap?.call();
+                break;
               case 'projects':
                 onProjectsTap?.call();
                 break;
@@ -113,22 +117,11 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
             }
           },
           itemBuilder: (context) => const [
-            PopupMenuItem(
-              value: 'about',
-              child: Text('About'),
-            ),
-            PopupMenuItem(
-              value: 'experience',
-              child: Text('Skills'),
-            ),
-            PopupMenuItem(
-              value: 'projects',
-              child: Text('Projects'),
-            ),
-            PopupMenuItem(
-              value: 'contact',
-              child: Text('Contact'),
-            ),
+            PopupMenuItem(value: 'about', child: Text('About')),
+            PopupMenuItem(value: 'experience', child: Text('Experience')),
+            PopupMenuItem(value: 'skills', child: Text('Skills')),
+            PopupMenuItem(value: 'projects', child: Text('Projects')),
+            PopupMenuItem(value: 'contact', child: Text('Contact')),
           ],
         ),
         const SizedBox(width: 4),
@@ -137,15 +130,11 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-/// Enhanced nav button with hover animation
 class _HoverNavButton extends StatefulWidget {
   final String label;
   final VoidCallback? onTap;
 
-  const _HoverNavButton({
-    required this.label,
-    this.onTap,
-  });
+  const _HoverNavButton({required this.label, this.onTap});
 
   @override
   State<_HoverNavButton> createState() => _HoverNavButtonState();
@@ -153,13 +142,13 @@ class _HoverNavButton extends StatefulWidget {
 
 class _HoverNavButtonState extends State<_HoverNavButton>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  bool _isHovered = false;
+  late AnimationController _ctrl;
+  bool _hovered = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    _ctrl = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
@@ -167,7 +156,7 @@ class _HoverNavButtonState extends State<_HoverNavButton>
 
   @override
   void dispose() {
-    _controller.dispose();
+    _ctrl.dispose();
     super.dispose();
   }
 
@@ -175,51 +164,37 @@ class _HoverNavButtonState extends State<_HoverNavButton>
   Widget build(BuildContext context) {
     return MouseRegion(
       onEnter: (_) {
-        setState(() => _isHovered = true);
-        _controller.forward();
+        setState(() => _hovered = true);
+        _ctrl.forward();
       },
       onExit: (_) {
-        setState(() => _isHovered = false);
-        _controller.reverse();
+        setState(() => _hovered = false);
+        _ctrl.reverse();
       },
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: 1.0 + (_controller.value * 0.05),
-            child: TextButton(
-              onPressed: widget.onTap,
-              style: TextButton.styleFrom(
-                foregroundColor: _isHovered
-                    ? (Theme.of(context).brightness == Brightness.dark ? AppColors.flutterLightBlue : AppColors.flutterDarkBlue)
-                    : Theme.of(context).hintColor,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              ),
-              child: Text(
-                widget.label,
-                style: TextStyle(
-                  fontWeight: _isHovered ? FontWeight.w600 : FontWeight.w500,
-                ),
-              ),
-            ),
-          );
-        },
+      child: TextButton(
+        onPressed: widget.onTap,
+        style: TextButton.styleFrom(
+          foregroundColor: _hovered ? AppColors.primary : Theme.of(context).hintColor,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        ),
+        child: Text(
+          widget.label,
+          style: TextStyle(
+            fontWeight: _hovered ? FontWeight.w600 : FontWeight.w500,
+            fontSize: 14,
+          ),
+        ),
       ),
     );
   }
 }
 
-/// Enhanced icon button with hover animation
 class _HoverIconButton extends StatefulWidget {
   final IconData icon;
   final VoidCallback? onTap;
   final String? tooltip;
 
-  const _HoverIconButton({
-    required this.icon,
-    this.onTap,
-    this.tooltip,
-  });
+  const _HoverIconButton({required this.icon, this.onTap, this.tooltip});
 
   @override
   State<_HoverIconButton> createState() => _HoverIconButtonState();
@@ -227,12 +202,12 @@ class _HoverIconButton extends StatefulWidget {
 
 class _HoverIconButtonState extends State<_HoverIconButton>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+  late AnimationController _ctrl;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    _ctrl = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
@@ -240,20 +215,20 @@ class _HoverIconButtonState extends State<_HoverIconButton>
 
   @override
   void dispose() {
-    _controller.dispose();
+    _ctrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      onEnter: (_) => _controller.forward(),
-      onExit: (_) => _controller.reverse(),
+      onEnter: (_) => _ctrl.forward(),
+      onExit: (_) => _ctrl.reverse(),
       child: AnimatedBuilder(
-        animation: _controller,
+        animation: _ctrl,
         builder: (context, child) {
           return Transform.scale(
-            scale: 1.0 + (_controller.value * 0.1),
+            scale: 1.0 + _ctrl.value * 0.1,
             child: IconButton(
               onPressed: widget.onTap,
               icon: AnimatedSwitcher(
@@ -267,8 +242,8 @@ class _HoverIconButtonState extends State<_HoverIconButton>
                   key: ValueKey(widget.icon),
                   color: Color.lerp(
                     Theme.of(context).hintColor,
-                    _getFlutterColor(context),
-                    _controller.value,
+                    AppColors.primary,
+                    _ctrl.value,
                   ),
                 ),
               ),
@@ -278,10 +253,5 @@ class _HoverIconButtonState extends State<_HoverIconButton>
         },
       ),
     );
-  }
-
-  Color _getFlutterColor(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return isDark ? AppColors.flutterLightBlue : AppColors.flutterDarkBlue;
   }
 }
