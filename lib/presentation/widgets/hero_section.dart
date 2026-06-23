@@ -59,7 +59,7 @@ class _HeroSectionState extends State<HeroSection>
     final isDesktop = MediaQuery.of(context).size.width >= 900;
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: isMobile ? 48 : 88),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 28 : 64),
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -153,7 +153,7 @@ class _HeroSectionState extends State<HeroSection>
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         logoWidget,
-        const SizedBox(height: 40),
+        const SizedBox(height: 24),
         textContent,
       ],
     );

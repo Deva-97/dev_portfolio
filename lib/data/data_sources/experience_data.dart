@@ -14,7 +14,7 @@ final List<Experience> experienceList = [
     ],
   ),
   Experience(
-    company: "Onwords Smart Solutions",
+    company: "Onwords Automation Private Limited",
     role: "Flutter App Developer",
     duration: "Jan 2023 – Dec 2025",
     location: "Coimbatore",

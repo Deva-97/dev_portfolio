@@ -29,7 +29,7 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Size get preferredSize => const Size.fromHeight(68);
+  Size get preferredSize => const Size.fromHeight(60);
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +76,7 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
     if (isDesktop) {
       return AppBar(
         elevation: 0,
+        toolbarHeight: 60,
         title: buildTitle(),
         centerTitle: false,
         actions: [
@@ -93,6 +94,7 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     return AppBar(
       elevation: 0,
+      toolbarHeight: 60,
       title: buildTitle(),
       actions: [
         themeIcon,
