@@ -312,15 +312,12 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _getSkillGroups() {
     return [
       {
-        'label': 'Languages & Framework',
+        'label': 'Languages & Frameworks',
         'icon': Icons.flutter_dash,
         'tags': [
           'Flutter',
           'Dart',
           'Kotlin (Basic)',
-          'Flutter Web',
-          'Flutter Android',
-          'Flutter iOS'
         ],
       },
       {
@@ -333,18 +330,17 @@ class _HomeScreenState extends State<HomeScreen> {
           'Provider',
           'BLoC',
           'get_it',
-          'hive'
         ],
       },
       {
-        'label': 'Backend, Real-time & AI',
+        'label': 'Backend, Storage & AI',
         'icon': Icons.cloud_outlined,
         'tags': [
           'Firebase (Firestore, Auth, FCM, Crashlytics, Storage, Remote Config)',
           'REST APIs',
           'MQTT',
           'LiveKit SDK',
-          'Real-time Chat',
+          'Hive (Local Storage)',
           'OpenAI ChatGPT API',
           'Text-to-Speech',
           'Speech-to-Text',
@@ -364,7 +360,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       },
       {
-        'label': 'DevOps & Platforms',
+        'label': 'Tools & App Publishing',
         'icon': Icons.rocket_launch_outlined,
         'tags': [
           'Google Play Store',
