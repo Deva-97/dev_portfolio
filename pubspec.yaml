@@ -11,7 +11,6 @@ dependencies:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  google_fonts: ^6.0.0
   url_launcher: ^6.1.7
   animations: ^2.0.6
   flutter_svg: ^2.0.6
@@ -45,3 +44,13 @@ flutter:
     - assets/images/app_deployment.png
     - assets/images/ic_logo.jpeg
     - assets/images/mighty_school.png
+
+  fonts:
+    - family: SFProDisplay
+      fonts:
+        - asset: assets/fonts/SFPRODISPLAYREGULAR.OTF
+          weight: 400
+        - asset: assets/fonts/SFPRODISPLAYMEDIUM.OTF
+          weight: 500
+        - asset: assets/fonts/SFPRODISPLAYBOLD.OTF
+          weight: 700

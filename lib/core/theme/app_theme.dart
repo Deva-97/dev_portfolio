@@ -1,56 +1,68 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
 class AppTheme {
-  static final baseTextTheme = TextTheme(
-    displayLarge: GoogleFonts.poppins(
+  static const _fontFamily = 'SFProDisplay';
+
+  static const baseTextTheme = TextTheme(
+    displayLarge: TextStyle(
+      fontFamily: _fontFamily,
       fontSize: 56,
-      fontWeight: FontWeight.w800,
+      fontWeight: FontWeight.w700,
       letterSpacing: -1.5,
       height: 1.1,
     ),
-    displayMedium: GoogleFonts.poppins(
+    displayMedium: TextStyle(
+      fontFamily: _fontFamily,
       fontSize: 42,
       fontWeight: FontWeight.w700,
       letterSpacing: -0.5,
     ),
-    headlineLarge: GoogleFonts.poppins(
+    headlineLarge: TextStyle(
+      fontFamily: _fontFamily,
       fontSize: 34,
       fontWeight: FontWeight.w700,
     ),
-    headlineMedium: GoogleFonts.poppins(
+    headlineMedium: TextStyle(
+      fontFamily: _fontFamily,
       fontSize: 28,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w700,
     ),
-    headlineSmall: GoogleFonts.poppins(
+    headlineSmall: TextStyle(
+      fontFamily: _fontFamily,
       fontSize: 22,
       fontWeight: FontWeight.w700,
     ),
-    titleLarge: GoogleFonts.poppins(
+    titleLarge: TextStyle(
+      fontFamily: _fontFamily,
       fontSize: 20,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
     ),
-    titleMedium: GoogleFonts.poppins(
+    titleMedium: TextStyle(
+      fontFamily: _fontFamily,
       fontSize: 17,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
     ),
-    bodyLarge: GoogleFonts.poppins(
+    bodyLarge: TextStyle(
+      fontFamily: _fontFamily,
       fontSize: 17,
       fontWeight: FontWeight.w400,
       height: 1.75,
     ),
-    bodyMedium: GoogleFonts.poppins(
+    bodyMedium: TextStyle(
+      fontFamily: _fontFamily,
       fontSize: 15,
       fontWeight: FontWeight.w400,
     ),
-    labelLarge: GoogleFonts.poppins(
+    labelLarge: TextStyle(
+      fontFamily: _fontFamily,
       fontSize: 14,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
     ),
-    labelMedium: GoogleFonts.poppins(
+    labelMedium: TextStyle(
+      fontFamily: _fontFamily,
       fontSize: 13,
       fontWeight: FontWeight.w500,
     ),
@@ -66,7 +78,8 @@ class AppTheme {
       elevation: 0,
       scrolledUnderElevation: 0,
       iconTheme: const IconThemeData(color: AppColors.lightModeText),
-      titleTextStyle: GoogleFonts.poppins(
+      titleTextStyle: const TextStyle(
+        fontFamily: _fontFamily,
         color: AppColors.lightModeText,
         fontSize: 20,
         fontWeight: FontWeight.w700,
@@ -84,9 +97,10 @@ class AppTheme {
         shadowColor: AppColors.primary.withOpacity(0.4),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
-        textStyle: GoogleFonts.poppins(
+        textStyle: const TextStyle(
+          fontFamily: _fontFamily,
           fontSize: 16,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w500,
         ),
       ).copyWith(
         overlayColor: WidgetStateProperty.resolveWith((states) {
@@ -103,9 +117,10 @@ class AppTheme {
         side: const BorderSide(color: AppColors.primary, width: 1.5),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
-        textStyle: GoogleFonts.poppins(
+        textStyle: const TextStyle(
+          fontFamily: _fontFamily,
           fontSize: 16,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w500,
         ),
       ).copyWith(
         overlayColor: WidgetStateProperty.resolveWith((states) {
@@ -119,7 +134,8 @@ class AppTheme {
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         foregroundColor: AppColors.lightModeHint,
-        textStyle: GoogleFonts.poppins(
+        textStyle: const TextStyle(
+          fontFamily: _fontFamily,
           fontSize: 15,
           fontWeight: FontWeight.w500,
         ),
@@ -167,7 +183,8 @@ class AppTheme {
       elevation: 0,
       scrolledUnderElevation: 0,
       iconTheme: const IconThemeData(color: AppColors.darkModeText),
-      titleTextStyle: GoogleFonts.poppins(
+      titleTextStyle: const TextStyle(
+        fontFamily: _fontFamily,
         color: AppColors.darkModeText,
         fontSize: 20,
         fontWeight: FontWeight.w700,
@@ -185,9 +202,10 @@ class AppTheme {
         shadowColor: AppColors.primary.withOpacity(0.5),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
-        textStyle: GoogleFonts.poppins(
+        textStyle: const TextStyle(
+          fontFamily: _fontFamily,
           fontSize: 16,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w500,
         ),
       ).copyWith(
         overlayColor: WidgetStateProperty.resolveWith((states) {
@@ -204,9 +222,10 @@ class AppTheme {
         side: const BorderSide(color: AppColors.primaryLight, width: 1.5),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
-        textStyle: GoogleFonts.poppins(
+        textStyle: const TextStyle(
+          fontFamily: _fontFamily,
           fontSize: 16,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w500,
         ),
       ).copyWith(
         overlayColor: WidgetStateProperty.resolveWith((states) {
@@ -220,7 +239,8 @@ class AppTheme {
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         foregroundColor: AppColors.darkModeHint,
-        textStyle: GoogleFonts.poppins(
+        textStyle: const TextStyle(
+          fontFamily: _fontFamily,
           fontSize: 15,
           fontWeight: FontWeight.w500,
         ),
