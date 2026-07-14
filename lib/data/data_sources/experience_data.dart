@@ -2,18 +2,6 @@ import '../models/experience.dart';
 
 final List<Experience> experienceList = [
   Experience(
-    company: "Shakuniya Solutions Private Limited",
-    role: "Flutter Developer",
-    duration: "Feb 2026 – Jun 2026",
-    location: "Chennai",
-    type: "Full-time, On-site",
-    highlights: [
-      "Developed Flusso, a feature-rich live streaming & social messaging app (Android) supporting audio/video live streams, real-time chat, media uploads, in-app games, and PK battles.",
-      "Architected Flusso with MVVM + GetX for reactive state management and consumed real-time REST APIs for streaming, payments, and messaging.",
-      "Designed the full UI for a multi-role school management platform (admin, teacher, accountant, librarian, parent, student) across both web and Android with MVVM + GetX; website live in production, mobile app pending release.",
-    ],
-  ),
-  Experience(
     company: "Onwords Automation Private Limited",
     role: "Flutter App Developer",
     duration: "Jan 2023 – Dec 2025",

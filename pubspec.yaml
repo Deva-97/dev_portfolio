@@ -42,8 +42,6 @@ flutter:
     - assets/images/mqtt.svg
     - assets/images/devices.png
     - assets/images/app_deployment.png
-    - assets/images/ic_logo.jpeg
-    - assets/images/mighty_school.png
 
   fonts:
     - family: SFProDisplay

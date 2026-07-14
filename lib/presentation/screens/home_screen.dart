@@ -339,7 +339,6 @@ class _HomeScreenState extends State<HomeScreen> {
           'Firebase (Firestore, Auth, FCM, Crashlytics, Storage, Remote Config)',
           'REST APIs',
           'MQTT',
-          'LiveKit SDK',
           'Hive (Local Storage)',
           'OpenAI ChatGPT API',
           'Text-to-Speech',
@@ -355,8 +354,6 @@ class _HomeScreenState extends State<HomeScreen> {
           'Home Screen Widgets',
           'Siri (HomeKit)',
           'Alexa',
-          'In-app Payments',
-          'Media Uploads',
         ],
       },
       {

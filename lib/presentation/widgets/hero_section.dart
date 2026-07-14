@@ -389,7 +389,7 @@ class _HeroSectionState extends State<HeroSection>
                 left: -24,
                 child: _FloatingChip(
                   icon: Icons.apps_rounded,
-                  label: '6 Apps',
+                  label: '4 Apps',
                   sublabel: 'Production',
                 ),
               ),

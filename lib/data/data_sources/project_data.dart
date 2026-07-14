@@ -2,23 +2,6 @@ import '../models/project.dart';
 
 final List<Project> projectList = [
   Project(
-    title: "Flusso",
-    description:
-        "A feature-rich live streaming & social messaging app supporting audio/video live streams, real-time chat, media uploads, in-app games, and PK battles with real-time scoring.",
-    tech: ["Flutter", "Dart", "GetX", "MVVM", "LiveKit SDK", "REST APIs", "Real-time Chat", "Android"],
-    image: "assets/images/ic_logo.jpeg",
-    playStore: "https://play.google.com/store/apps/details?id=com.chasinghazel.flusso&hl=en_IN",
-    category: "Live Streaming",
-  ),
-  Project(
-    title: "School Management Platform",
-    description:
-        "Complete UI for a multi-role school management system with dedicated dashboards for admin, teacher, accountant, librarian, parent, and student. Responsive layouts for web and Android from a shared Flutter codebase.",
-    tech: ["Flutter", "Dart", "GetX", "MVVM", "REST APIs", "Web", "Android", "Responsive UI"],
-    image: "assets/images/mighty_school.png",
-    category: "EdTech",
-  ),
-  Project(
     title: "Onwords Smart Things",
     description:
         "Real-time smart home automation app with MQTT for instant, low-latency device control. Features scene automation engine with scheduling, sunrise/sunset triggers, guest access sharing, and Siri & Alexa integration.",

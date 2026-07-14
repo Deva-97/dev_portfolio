@@ -175,8 +175,8 @@ class _AboutSectionState extends State<AboutSection>
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            "I'm a Flutter Developer with 3+ years of hands-on experience building cross-platform mobile applications shipped to the Play Store and App Store. I've led end-to-end development across smart home automation, live streaming, enterprise management, and AI-powered apps — with a combined 10,500+ downloads.\n\n"
-            "My approach is grounded in clean, scalable architecture — Clean Architecture, MVVM, and well-chosen state management (GetX, Provider, BLoC). I've integrated real-time systems using MQTT and LiveKit, full Firebase suites, OpenAI APIs, and voice assistants including Siri (HomeKit) and Alexa.\n\n"
+            "I'm a Flutter Developer with 3+ years of hands-on experience building cross-platform mobile applications shipped to the Play Store and App Store. I've led end-to-end development across smart home automation, enterprise management, and AI-powered apps — with a combined 10,500+ downloads.\n\n"
+            "My approach is grounded in clean, scalable architecture — Clean Architecture, MVVM, and well-chosen state management (GetX, Provider, BLoC). I've integrated real-time systems using MQTT, full Firebase suites, OpenAI APIs, and voice assistants including Siri (HomeKit) and Alexa.\n\n"
             "I thrive in cross-functional Agile teams and take pride in writing maintainable Dart code that performs well in real-world production environments.",
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: Theme.of(context).hintColor,
@@ -205,9 +205,9 @@ class _AboutSectionState extends State<AboutSection>
         'icon': Icons.download_outlined,
       },
       {
-        'value': '6',
+        'value': '4',
         'label': 'Production Apps',
-        'sub': 'Android · iOS · Web · Tablet',
+        'sub': 'Android · iOS · Tablet',
         'icon': Icons.rocket_launch_outlined,
       },
     ];
