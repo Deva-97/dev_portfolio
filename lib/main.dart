@@ -1,3 +1,5 @@
+import 'package:dev_portfolio/presentation/screens/aquacare_delete_account_page.dart';
+import 'package:dev_portfolio/presentation/screens/aquacare_privacy_policy_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'app_routes.dart';
@@ -57,6 +59,10 @@ class _PortfolioAppState extends State<PortfolioApp> {
             const NinaivuPrivacyPolicyPage(),
         AppRoutes.ninaivuDeleteAccount: (context) =>
             const NinaivuDeleteAccountPage(),
+        AppRoutes.aquacarePrivacyPolicy: (context) =>
+            const AquacarePrivacyPolicyPage(),
+        AppRoutes.aquacareDeleteAccount: (context) =>
+            const AquacareDeleteAccountPage(),
       },
       onUnknownRoute: (settings) => MaterialPageRoute(
         builder: (context) => _showSplash

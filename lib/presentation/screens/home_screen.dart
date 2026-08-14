@@ -595,7 +595,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontSize: 12,
                 ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Wrap(
             alignment: WrapAlignment.center,
             spacing: 4,
@@ -626,6 +626,40 @@ class _HomeScreenState extends State<HomeScreen> {
                   textStyle: const TextStyle(fontSize: 12),
                 ),
                 child: const Text('Ninaivu Delete Account'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 4,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.of(context)
+                    .pushNamed(AppRoutes.aquacarePrivacyPolicy),
+                style: TextButton.styleFrom(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  foregroundColor: Theme.of(context).hintColor,
+                  textStyle: const TextStyle(fontSize: 12),
+                ),
+                child: const Text('Aquacare CRM Privacy Policy'),
+              ),
+              Text('·', style: TextStyle(color: Theme.of(context).hintColor)),
+              TextButton(
+                onPressed: () => Navigator.of(context)
+                    .pushNamed(AppRoutes.aquacareDeleteAccount),
+                style: TextButton.styleFrom(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  foregroundColor: Theme.of(context).hintColor,
+                  textStyle: const TextStyle(fontSize: 12),
+                ),
+                child: const Text('Aquacare CRM Delete Account'),
               ),
             ],
           ),
