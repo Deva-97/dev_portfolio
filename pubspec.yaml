@@ -4,7 +4,7 @@ publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.18.0 <3.0.0"
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -42,6 +42,26 @@ flutter:
     - assets/images/mqtt.svg
     - assets/images/devices.png
     - assets/images/app_deployment.png
+    - assets/images/aquacare_crm.png
+    - assets/images/ninaivu.png
+    - assets/images/projects/aquacare_1.webp
+    - assets/images/projects/aquacare_2.webp
+    - assets/images/projects/aquacare_3.webp
+    - assets/images/projects/mudhal_ai_1.webp
+    - assets/images/projects/mudhal_ai_2.webp
+    - assets/images/projects/mudhal_ai_3.webp
+    - assets/images/projects/onwords_smart_things_1.webp
+    - assets/images/projects/onwords_smart_things_2.webp
+    - assets/images/projects/onwords_smart_things_3.webp
+    - assets/images/projects/ninaivu_1.webp
+    - assets/images/projects/ninaivu_2.webp
+    - assets/images/projects/ninaivu_3.webp
+    - assets/images/projects/onwords_st_1.webp
+    - assets/images/projects/onwords_st_2.webp
+    - assets/images/projects/onwords_st_3.webp
+    - assets/images/projects/onwords_workspace_1.webp
+    - assets/images/projects/onwords_workspace_2.webp
+    - assets/images/projects/onwords_workspace_3.webp
 
   fonts:
     - family: SFProDisplay

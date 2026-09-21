@@ -175,9 +175,8 @@ class _AboutSectionState extends State<AboutSection>
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            "I'm a Flutter Developer with 3+ years of hands-on experience building cross-platform mobile applications shipped to the Play Store and App Store. I've led end-to-end development across smart home automation, enterprise management, and AI-powered apps — with a combined 10,500+ downloads.\n\n"
-            "My approach is grounded in clean, scalable architecture — Clean Architecture, MVVM, and well-chosen state management (GetX, Provider, BLoC). I've integrated real-time systems using MQTT, full Firebase suites, OpenAI APIs, and voice assistants including Siri (HomeKit) and Alexa.\n\n"
-            "I thrive in cross-functional Agile teams and take pride in writing maintainable Dart code that performs well in real-world production environments.",
+            "Flutter Developer with 3+ years of experience building and deploying production Android and iOS applications. Hands-on experience with Flutter, Dart, Firebase, REST APIs, Clean Architecture, MVVM, Provider and GetX, with additional experience in IoT/MQTT, AI integrations and offline-first applications.\n\n"
+            "I build maintainable mobile UI for production applications, real-time systems and Firebase-backed workflows, with product-minded attention to architecture, reliability and the details that make an app feel finished.",
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: Theme.of(context).hintColor,
                   height: 1.85,
@@ -199,15 +198,15 @@ class _AboutSectionState extends State<AboutSection>
         'icon': Icons.workspace_premium_outlined,
       },
       {
-        'value': '10,500+',
-        'label': 'App Downloads',
-        'sub': 'Combined across all apps',
+        'value': '10K+',
+        'label': 'Android Downloads',
+        'sub': 'Onwords Smart Things',
         'icon': Icons.download_outlined,
       },
       {
-        'value': '4',
+        'value': 'Android + iOS',
         'label': 'Production Apps',
-        'sub': 'Android · iOS · Tablet',
+        'sub': 'Built and deployed',
         'icon': Icons.rocket_launch_outlined,
       },
     ];
@@ -284,50 +283,53 @@ class _StatCardState extends State<_StatCard>
     super.dispose();
   }
 
+  void _onHover(bool hovered) {
+    setState(() => _hovered = hovered);
+    if (hovered) {
+      _ctrl.forward();
+    } else {
+      _ctrl.reverse();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return MouseRegion(
-      onEnter: (_) {
-        setState(() => _hovered = true);
-        _ctrl.forward();
-      },
-      onExit: (_) {
-        setState(() => _hovered = false);
-        _ctrl.reverse();
-      },
+      onEnter: (_) => _onHover(true),
+      onExit: (_) => _onHover(false),
       child: AnimatedBuilder(
         animation: _ctrl,
         builder: (context, child) {
-          return Transform.translate(
-            offset: Offset(0, -4 * _ctrl.value),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: isDark ? AppColors.darkCardBg : AppColors.cardBg,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: _hovered
-                      ? AppColors.primary.withOpacity(0.4)
-                      : (isDark ? AppColors.darkBorder : AppColors.borderLight),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withOpacity(0.08 * _ctrl.value),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                  if (!isDark)
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                ],
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.darkCardBg : AppColors.cardBg,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: _hovered
+                    ? AppColors.primary.withOpacity(0.4)
+                    : (isDark ? AppColors.darkBorder : AppColors.borderLight),
+                width: _hovered ? 1.5 : 1,
               ),
-              child: child,
+              boxShadow: _hovered
+                  ? [
+                      BoxShadow(
+                        color: AppColors.primary.withOpacity(0.12),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ]
+                  : [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
             ),
+            child: child,
           );
         },
         child: Column(
@@ -335,13 +337,13 @@ class _StatCardState extends State<_StatCard>
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: 45,
+              height: 45,
               decoration: BoxDecoration(
                 color: AppColors.primary.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(widget.icon, color: AppColors.primary, size: 20),
+              child: Icon(widget.icon, color: AppColors.primary, size: 24),
             ),
             const SizedBox(height: 12),
             Text(
@@ -349,6 +351,7 @@ class _StatCardState extends State<_StatCard>
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     color: AppColors.primary,
                     fontWeight: FontWeight.w800,
+                    fontSize: 27,
                   ),
             ),
             const SizedBox(height: 4),
@@ -356,7 +359,7 @@ class _StatCardState extends State<_StatCard>
               widget.label,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
-                    fontSize: 13,
+                    fontSize: 16,
                   ),
               textAlign: TextAlign.center,
             ),
@@ -365,7 +368,7 @@ class _StatCardState extends State<_StatCard>
               widget.sub,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).hintColor,
-                    fontSize: 11,
+                    fontSize: 13,
                   ),
               textAlign: TextAlign.center,
             ),

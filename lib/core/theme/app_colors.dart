@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // Primary — Flutter Material Blue
-  static const primary = Color(0xFF2196F3);
-  static const primaryLight = Color(0xFF64B5F6);
-  static const primaryDark = Color(0xFF1565C0);
+  static const primary = Color(0xFF3AA9F5);
+  static const primaryLight = Color(0xFF42A5F5);
+  static const primaryDark = Color(0xFF1976D2);
   static const primaryGlow = Color(0xFF90CAF9);
 
   // Functional / status colors (minimal)
@@ -14,10 +14,10 @@ class AppColors {
   static const error = Color(0xFFF44336);
 
   // Dark mode backgrounds
-  static const darkBg = Color(0xFF0A0B14);
-  static const darkSurface = Color(0xFF111628);
-  static const darkCardBg = Color(0xFF141929);
-  static const darkBorder = Color(0xFF1E2A45);
+  static const darkBg = Color(0xFF0B0D12);
+  static const darkSurface = Color(0xFF11151D);
+  static const darkCardBg = Color(0xFF151A23);
+  static const darkBorder = Color(0xFF252B36);
   static const darkBorderHover = Color(0xFF2D3F63);
 
   // Dark mode text

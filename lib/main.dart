@@ -41,7 +41,7 @@ class _PortfolioAppState extends State<PortfolioApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Devendiran Portfolio',
+      title: 'Devendiran Thiyagarajan | Flutter Developer',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,

@@ -15,6 +15,7 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onSkillsTap;
   final VoidCallback? onProjectsTap;
   final VoidCallback? onContactTap;
+  final VoidCallback? onResumeTap;
 
   const ResponsiveAppBar({
     super.key,
@@ -26,6 +27,7 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onSkillsTap,
     this.onProjectsTap,
     this.onContactTap,
+    this.onResumeTap,
   });
 
   @override
@@ -37,7 +39,9 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final themeIcon = _HoverIconButton(
-      icon: themeMode == ThemeMode.dark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
+      icon: themeMode == ThemeMode.dark
+          ? Icons.dark_mode_outlined
+          : Icons.light_mode_outlined,
       onTap: onToggleTheme,
       tooltip: 'Toggle theme',
     );
@@ -56,13 +60,16 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
                 'assets/images/flutter logo.svg',
                 width: Responsive.isMobile(context) ? 18 : 24,
                 height: Responsive.isMobile(context) ? 18 : 24,
-                colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                colorFilter:
+                    const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
               ),
               const SizedBox(width: 10),
               Text(
                 'Devendiran Thiyagarajan',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: isDark ? AppColors.darkModeText : AppColors.lightModeText,
+                      color: isDark
+                          ? AppColors.darkModeText
+                          : AppColors.lightModeText,
                       fontWeight: FontWeight.w700,
                       fontSize: Responsive.isMobile(context) ? 16 : 18,
                     ),
@@ -176,7 +183,8 @@ class _HoverNavButtonState extends State<_HoverNavButton>
       child: TextButton(
         onPressed: widget.onTap,
         style: TextButton.styleFrom(
-          foregroundColor: _hovered ? AppColors.primary : Theme.of(context).hintColor,
+          foregroundColor:
+              _hovered ? AppColors.primary : Theme.of(context).hintColor,
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         ),
         child: Text(
